@@ -5,8 +5,6 @@ import readline from "node:readline/promises";
 import { readFile } from "node:fs/promises";
 import Scanner from "./lox/scanner";
 
-program.option("--first").option("-s, --separator <char>");
-
 function run(source: string): boolean {
   console.log("running!");
   const scanner = new Scanner(source);
@@ -48,8 +46,6 @@ async function runPrompt() {
 
 async function main() {
   program.parse();
-  const options = program.opts();
-  console.log(options);
 
   if (program.args.length > 1) {
     console.log(program.usage);

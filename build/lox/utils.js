@@ -6,9 +6,7 @@ function isDigit(c) {
 }
 exports.isDigit = isDigit;
 function isAlpha(c) {
-    return (c >= "a" && c <= "z") ||
-        (c >= "A" && c <= "Z") ||
-        c == "_";
+    return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || c == "_";
 }
 exports.isAlpha = isAlpha;
 function isAlphaNumeric(c) {
