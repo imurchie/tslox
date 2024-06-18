@@ -17,9 +17,6 @@ const commander_1 = require("commander");
 const promises_1 = __importDefault(require("node:readline/promises"));
 const promises_2 = require("node:fs/promises");
 const scanner_1 = __importDefault(require("./lox/scanner"));
-commander_1.program
-    .option('--first')
-    .option('-s, --separator <char>');
 function run(source) {
     console.log("running!");
     const scanner = new scanner_1.default(source);
@@ -58,8 +55,6 @@ function runPrompt() {
 function main() {
     return __awaiter(this, void 0, void 0, function* () {
         commander_1.program.parse();
-        const options = commander_1.program.opts();
-        console.log(options);
         if (commander_1.program.args.length > 1) {
             console.log(commander_1.program.usage);
             process.exit(64);

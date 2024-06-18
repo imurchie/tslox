@@ -5,6 +5,7 @@
   "main": "build/index.js",
   "scripts": {
     "build": "rimraf ./build && tsc",
+    "build-ast": "tsc && node build/tools/generate_ast.js lox",
     "prettier-format": "prettier --config .prettierrc '**/*.ts' --write",
     "lint": "eslint . --ext .ts"
   },
