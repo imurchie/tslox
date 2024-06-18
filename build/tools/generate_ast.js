@@ -21,12 +21,30 @@ const rules = {
     "Literal": [["Object", "value"],],
     "Unary": [["Token", "operator"], ["Expr", "right"]],
 };
+function defineBaseClass() {
+    let classDef = `export class Expr {\n`;
+    classDef += `  accept<T>(visitor: Visitor<T>): T { // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
+    classDef += `    throw new Error("Abstract classes cannot be instantiated.");\n`;
+    classDef += `  }\n`;
+    classDef += `}\n`;
+    return classDef;
+}
+function defineBaseVisitor(basename, types) {
+    let classDef = `export abstract class Visitor<T> {\n`;
+    for (const type of types) {
+        classDef += `  visit${type}${basename}(expr: ${type}): T { // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
+        classDef += `    throw new Error("Abstract classes cannot be instantiated.");\n`;
+        classDef += `  }\n\n`;
+    }
+    classDef += `}\n`;
+    return classDef;
+}
 function defineClass(basename, types) {
     let classDef = "\n\n";
     classDef += `export class ${basename} extends Expr {\n`;
     let params = [];
     for (const [paramType, paramName] of types) {
-        classDef += `  private ${paramName}: ${paramType};\n`;
+        classDef += `  ${paramName}: ${paramType};\n`;
         params.push(`${paramName}: ${paramType}`);
     }
     classDef += `\n`;
@@ -35,6 +53,9 @@ function defineClass(basename, types) {
     for (const [_, paramName] of types) {
         classDef += `    this.${paramName} = ${paramName};\n`;
     }
+    classDef += `  }\n\n`;
+    classDef += `  accept<T>(visitor: Visitor<T>): T {\n`;
+    classDef += `    return visitor.visit${basename}Expr(this);\n`;
     classDef += `  }\n`;
     classDef += `}\n`;
     return classDef;
@@ -43,7 +64,8 @@ function writeAst(dirname) {
     return __awaiter(this, void 0, void 0, function* () {
         let dirDepth = dirname.split("/").map((base) => "..").join("/");
         let source = `import { Token } from "${dirDepth}/lox/token";\n\n`;
-        source += `export class Expr {}\n`;
+        source += defineBaseClass();
+        source += defineBaseVisitor("Expr", Object.keys(rules));
         for (const [name, types] of Object.entries(rules)) {
             let classDef = defineClass(name, types);
             source += classDef;
