@@ -9,9 +9,26 @@ class ParseError extends Error {}
 export default class Parser {
     private tokens: Token[];
     private current: number = 0;
+    private _hasError = false;
 
     constructor(tokens: Token[]) {
         this.tokens = tokens;
+    }
+
+    parse(): Expr | null {
+        try {
+            return this.expression();
+        } catch (ex) {
+            return null;
+        }
+    }
+
+    get hasError(): boolean {
+        return this.hasError;
+    }
+    
+    set hasError(error: boolean) {
+        this.hasError = error;
     }
 
     private expression(): Expr {
@@ -90,6 +107,30 @@ export default class Parser {
             this.consume(TokenType.RIGHT_PAREN, `Expect ')' after expression`);
             return new Grouping(expr);
         }
+
+        throw this.error(this.peek(), "Expect expression");
+    }
+
+    private synchronize() {
+        this.advance();
+
+        while (!this.isAtEnd()) {
+            if (this.previous().type == TokenType.SEMICOLON) return;
+
+            switch (this.peek().type) {
+                case TokenType.CLASS:
+                case TokenType.FUN:
+                case TokenType.VAR:
+                case TokenType.FOR:
+                case TokenType.IF:
+                case TokenType.WHILE:
+                case TokenType.PRINT:
+                case TokenType.RETURN:
+                    return;
+            }
+
+            this.advance();
+        }
     }
 
     private match(...types: string[]): boolean {
@@ -131,6 +172,8 @@ export default class Parser {
     }
 
     private error(token: Token, message: string): ParseError {
+        this.hasError = true;
+
         if (token.type == TokenType.EOF) {
             report(token.line, ` at end`, message);
         } else {

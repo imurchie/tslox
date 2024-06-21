@@ -4,6 +4,8 @@ import { program } from "commander";
 import readline from "node:readline/promises";
 import { readFile } from "node:fs/promises";
 import Scanner from "./lox/scanner";
+import Parser from "./lox/parser";
+import { AstPrinter } from "./lox/ast_printer";
 
 function run(source: string): boolean {
   console.log("running!");
@@ -14,7 +16,19 @@ function run(source: string): boolean {
     console.log(token);
   }
 
-  return scanner.error;
+  if (scanner.error) {
+    return scanner.error;
+  }
+
+    //   return scanner.error;
+  const parser = new Parser(tokens);
+  const expr = parser.parse();
+  if (expr == null) {
+    return parser.hasError;
+  }
+  console.log(new AstPrinter().print(expr));
+
+  return parser.hasError;
 }
 
 async function runFile(filename: string) {

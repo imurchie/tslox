@@ -18,7 +18,7 @@ const promises_1 = require("node:fs/promises");
 const rules = {
     "Binary": [["Expr", "left"], ["Token", "operator"], ["Expr", "right"]],
     "Grouping": [["Expr", "expression"],],
-    "Literal": [["Object", "value"],],
+    "Literal": [["any", "value"],],
     "Unary": [["Token", "operator"], ["Expr", "right"]],
 };
 function defineBaseClass() {
@@ -42,15 +42,15 @@ function defineBaseVisitor(basename, types) {
 function defineClass(basename, types) {
     let classDef = "\n\n";
     classDef += `export class ${basename} extends Expr {\n`;
-    let params = [];
+    const params = [];
     for (const [paramType, paramName] of types) {
-        classDef += `  ${paramName}: ${paramType};\n`;
+        classDef += `  ${paramName}: ${paramType}; // eslint-disable-line @typescript-eslint/no-explicit-any\n`;
         params.push(`${paramName}: ${paramType}`);
     }
     classDef += `\n`;
-    classDef += `  constructor(${params.join(", ")}) {\n`;
+    classDef += `  constructor(${params.join(", ")}) { // eslint-disable-line @typescript-eslint/no-explicit-any\n`;
     classDef += `    super();\n`;
-    for (const [_, paramName] of types) {
+    for (const [, paramName] of types) {
         classDef += `    this.${paramName} = ${paramName};\n`;
     }
     classDef += `  }\n\n`;
@@ -62,13 +62,12 @@ function defineClass(basename, types) {
 }
 function writeAst(dirname) {
     return __awaiter(this, void 0, void 0, function* () {
-        let dirDepth = dirname.split("/").map((base) => "..").join("/");
+        const dirDepth = dirname.split("/").map(() => "..").join("/");
         let source = `import { Token } from "${dirDepth}/lox/token";\n\n`;
         source += defineBaseClass();
         source += defineBaseVisitor("Expr", Object.keys(rules));
         for (const [name, types] of Object.entries(rules)) {
-            let classDef = defineClass(name, types);
-            source += classDef;
+            source += defineClass(name, types);
         }
         yield (0, promises_1.writeFile)(`${dirname}/grammar.ts`, source);
     });
