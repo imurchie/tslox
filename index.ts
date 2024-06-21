@@ -20,7 +20,7 @@ function run(source: string): boolean {
     return scanner.error;
   }
 
-    //   return scanner.error;
+  //   return scanner.error;
   const parser = new Parser(tokens);
   const expr = parser.parse();
   if (expr == null) {
