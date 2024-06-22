@@ -15,19 +15,22 @@ export default class Parser {
   }
 
   parse(): Expr | null {
+    console.log("Parsing");
+
     try {
       return this.expression();
     } catch (ex) {
+      console.log(ex);
       return null;
     }
   }
 
   get hasError(): boolean {
-    return this.hasError;
+    return this._hasError;
   }
 
   set hasError(error: boolean) {
-    this.hasError = error;
+    this._hasError = error;
   }
 
   private expression(): Expr {
@@ -139,6 +142,7 @@ export default class Parser {
         return true;
       }
     }
+
     return false;
   }
 

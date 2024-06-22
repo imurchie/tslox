@@ -27,6 +27,7 @@ function run(source) {
         console.log(token);
     }
     if (scanner.error) {
+        console.log("Scanner error");
         return scanner.error;
     }
     //   return scanner.error;

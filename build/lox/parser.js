@@ -12,18 +12,20 @@ class Parser {
         this.tokens = tokens;
     }
     parse() {
+        console.log("Parsing");
         try {
             return this.expression();
         }
         catch (ex) {
+            console.log(ex);
             return null;
         }
     }
     get hasError() {
-        return this.hasError;
+        return this._hasError;
     }
     set hasError(error) {
-        this.hasError = error;
+        this._hasError = error;
     }
     expression() {
         return this.equality();

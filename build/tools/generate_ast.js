@@ -16,10 +16,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = require("commander");
 const promises_1 = require("node:fs/promises");
 const rules = {
-    "Binary": [["Expr", "left"], ["Token", "operator"], ["Expr", "right"]],
-    "Grouping": [["Expr", "expression"],],
-    "Literal": [["any", "value"],],
-    "Unary": [["Token", "operator"], ["Expr", "right"]],
+    Binary: [
+        ["Expr", "left"],
+        ["Token", "operator"],
+        ["Expr", "right"],
+    ],
+    Grouping: [["Expr", "expression"]],
+    Literal: [["any", "value"]],
+    Unary: [
+        ["Token", "operator"],
+        ["Expr", "right"],
+    ],
 };
 function defineBaseClass() {
     let classDef = `export class Expr {\n`;
@@ -62,7 +69,10 @@ function defineClass(basename, types) {
 }
 function writeAst(dirname) {
     return __awaiter(this, void 0, void 0, function* () {
-        const dirDepth = dirname.split("/").map(() => "..").join("/");
+        const dirDepth = dirname
+            .split("/")
+            .map(() => "..")
+            .join("/");
         let source = `import { Token } from "${dirDepth}/lox/token";\n\n`;
         source += defineBaseClass();
         source += defineBaseVisitor("Expr", Object.keys(rules));

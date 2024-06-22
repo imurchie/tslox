@@ -17,6 +17,7 @@ function run(source: string): boolean {
   }
 
   if (scanner.error) {
+    console.log("Scanner error");
     return scanner.error;
   }
 
