@@ -28,17 +28,21 @@ export default class Scanner {
   }
 
   scanTokens(): Token[] {
+    console.log("Scanning");
+
     while (!this.isAtEnd()) {
       this.start = this.current;
       this.scanToken();
     }
+
+    // add sentinel for future parsing
+    this.tokens.push(new Token(TokenType.EOF, "", null, this.line));
 
     return this.tokens;
   }
 
   scanToken() {
     const c = this.advance();
-    console.log(`c = ${c}`);
     switch (c) {
       case "(":
         this.addToken(TokenType.LEFT_PAREN, null);

@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AstPrinter = void 0;
 const grammar_1 = require("./grammar");
-const token_1 = require("./token");
-const token_type_1 = require("./token_type");
 class AstPrinter extends grammar_1.Visitor {
     print(expr) {
         return expr.accept(this);
@@ -30,5 +28,14 @@ class AstPrinter extends grammar_1.Visitor {
     }
 }
 exports.AstPrinter = AstPrinter;
-const expression = new grammar_1.Binary(new grammar_1.Unary(new token_1.Token(token_type_1.TokenType.MINUS, "-", null, 1), new grammar_1.Literal(123)), new token_1.Token(token_type_1.TokenType.STAR, "*", null, 1), new grammar_1.Grouping(new grammar_1.Literal(45.67)));
-console.log(new AstPrinter().print(expression));
+// const expression = new Binary(
+//     new Unary(
+//         new Token(TokenType.MINUS, "-", null, 1),
+//         new Literal(123)
+//     ),
+//     new Token(TokenType.STAR, "*", null, 1),
+//     new Grouping(
+//         new Literal(45.67)
+//     )
+// )
+// console.log(new AstPrinter().print(expression));

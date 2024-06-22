@@ -24,15 +24,17 @@ class Scanner {
         this.hasError = error;
     }
     scanTokens() {
+        console.log("Scanning");
         while (!this.isAtEnd()) {
             this.start = this.current;
             this.scanToken();
         }
+        // add sentinel for future parsing
+        this.tokens.push(new token_1.Token(token_type_1.TokenType.EOF, "", null, this.line));
         return this.tokens;
     }
     scanToken() {
         const c = this.advance();
-        console.log(`c = ${c}`);
         switch (c) {
             case "(":
                 this.addToken(token_type_1.TokenType.LEFT_PAREN, null);

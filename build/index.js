@@ -17,6 +17,8 @@ const commander_1 = require("commander");
 const promises_1 = __importDefault(require("node:readline/promises"));
 const promises_2 = require("node:fs/promises");
 const scanner_1 = __importDefault(require("./lox/scanner"));
+const parser_1 = __importDefault(require("./lox/parser"));
+const ast_printer_1 = require("./lox/ast_printer");
 function run(source) {
     console.log("running!");
     const scanner = new scanner_1.default(source);
@@ -24,7 +26,18 @@ function run(source) {
     for (const token of tokens) {
         console.log(token);
     }
-    return scanner.error;
+    if (scanner.error) {
+        console.log("Scanner error");
+        return scanner.error;
+    }
+    //   return scanner.error;
+    const parser = new parser_1.default(tokens);
+    const expr = parser.parse();
+    if (expr == null) {
+        return parser.hasError;
+    }
+    console.log(new ast_printer_1.AstPrinter().print(expr));
+    return parser.hasError;
 }
 function runFile(filename) {
     return __awaiter(this, void 0, void 0, function* () {

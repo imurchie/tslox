@@ -3,21 +3,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Unary = exports.Literal = exports.Grouping = exports.Binary = exports.Visitor = exports.Expr = void 0;
 class Expr {
     accept(visitor) {
+        // eslint-disable-line @typescript-eslint/no-unused-vars
         throw new Error("Abstract classes cannot be instantiated.");
     }
 }
 exports.Expr = Expr;
 class Visitor {
     visitBinaryExpr(expr) {
+        // eslint-disable-line @typescript-eslint/no-unused-vars
         throw new Error("Abstract classes cannot be instantiated.");
     }
     visitGroupingExpr(expr) {
+        // eslint-disable-line @typescript-eslint/no-unused-vars
         throw new Error("Abstract classes cannot be instantiated.");
     }
     visitLiteralExpr(expr) {
+        // eslint-disable-line @typescript-eslint/no-unused-vars
         throw new Error("Abstract classes cannot be instantiated.");
     }
     visitUnaryExpr(expr) {
+        // eslint-disable-line @typescript-eslint/no-unused-vars
         throw new Error("Abstract classes cannot be instantiated.");
     }
 }
@@ -46,6 +51,7 @@ class Grouping extends Expr {
 exports.Grouping = Grouping;
 class Literal extends Expr {
     constructor(value) {
+        // eslint-disable-line @typescript-eslint/no-explicit-any
         super();
         this.value = value;
     }
