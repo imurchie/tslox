@@ -8,7 +8,7 @@ class ParseError extends Error {}
 export default class Parser {
   private tokens: Token[];
   private current: number = 0;
-  private _hasError = false;
+  private hasError = false;
 
   constructor(tokens: Token[]) {
     this.tokens = tokens;
@@ -16,7 +16,6 @@ export default class Parser {
 
   parse(): Expr | null {
     console.log("Parsing");
-
     try {
       return this.expression();
     } catch (ex) {
@@ -25,12 +24,12 @@ export default class Parser {
     }
   }
 
-  get hasError(): boolean {
-    return this._hasError;
+  get error(): boolean {
+    return this.hasError;
   }
 
-  set hasError(error: boolean) {
-    this._hasError = error;
+  set error(error: boolean) {
+    this.hasError = error;
   }
 
   private expression(): Expr {
@@ -110,7 +109,7 @@ export default class Parser {
       return new Grouping(expr);
     }
 
-    throw this.error(this.peek(), "Expect expression");
+    throw this.reportError(this.peek(), "Expect expression");
   }
 
   private synchronize() {
@@ -171,11 +170,11 @@ export default class Parser {
   private consume(type: string, message: string): Token {
     if (this.check(type)) return this.advance();
 
-    throw this.error(this.peek(), message);
+    throw this.reportError(this.peek(), message);
   }
 
-  private error(token: Token, message: string): ParseError {
-    this.hasError = true;
+  private reportError(token: Token, message: string): ParseError {
+    this.error = true;
 
     if (token.type == TokenType.EOF) {
       report(token.line, ` at end`, message);
