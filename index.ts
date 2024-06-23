@@ -9,7 +9,6 @@ import { AstPrinter } from "./lox/ast_printer";
 import { Interpreter } from "./lox/interpreter";
 
 function run(source: string): boolean {
-  console.log("running!");
   const scanner = new Scanner(source);
   const tokens = scanner.scanTokens();
 
@@ -25,15 +24,14 @@ function run(source: string): boolean {
   //   return scanner.error;
   const parser = new Parser(tokens);
   const expr = parser.parse();
-  if (expr == null) {
-    return parser.hasError;
+  if (expr == null || parser.error) {
+    return parser.error;
   }
-  //   console.log(new AstPrinter().print(expr));
 
   const interpreter = new Interpreter();
   interpreter.interpret(expr);
 
-  return parser.hasError;
+  return interpreter.error;
 }
 
 async function runFile(filename: string) {
