@@ -6,6 +6,7 @@ import { readFile } from "node:fs/promises";
 import Scanner from "./lox/scanner";
 import Parser from "./lox/parser";
 import { AstPrinter } from "./lox/ast_printer";
+import { Interpreter } from "./lox/interpreter";
 
 function run(source: string): boolean {
   console.log("running!");
@@ -27,7 +28,10 @@ function run(source: string): boolean {
   if (expr == null) {
     return parser.hasError;
   }
-  console.log(new AstPrinter().print(expr));
+  //   console.log(new AstPrinter().print(expr));
+
+  const interpreter = new Interpreter();
+  interpreter.interpret(expr);
 
   return parser.hasError;
 }
