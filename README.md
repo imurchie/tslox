@@ -6,6 +6,10 @@ A Typescript implementation of the _Lox_ programming language interpreter.
 ## Grammar
 | name | rule |
 |------|------|
+| program | statement* EOF |
+| statement | exprStmt | printStmt |
+| exprStmt | expression ";" |
+| printStmt | "print" expression ";" |
 | expression | equality |
 | equality | comparison ( ( "!=" \| "==" ) comparison)* |
 | comparison | term ( ( ">" \| ">=" \| "<" \| "<=" ) term)* |

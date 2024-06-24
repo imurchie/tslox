@@ -1,4 +1,4 @@
-import { Binary, Expr, Grouping, Literal, Unary, Visitor } from "./grammar";
+import { Binary, Expr, Grouping, Literal, Unary, Visitor } from "./expr";
 
 export class AstPrinter extends Visitor<string> {
   print(expr: Expr): string {

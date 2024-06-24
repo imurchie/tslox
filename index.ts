@@ -23,13 +23,13 @@ function run(source: string): boolean {
 
   //   return scanner.error;
   const parser = new Parser(tokens);
-  const expr = parser.parse();
-  if (expr == null || parser.error) {
+  const statements = parser.parse();
+  if (statements == null || parser.error) {
     return parser.error;
   }
 
   const interpreter = new Interpreter();
-  interpreter.interpret(expr);
+  interpreter.interpret(statements);
 
   return interpreter.error;
 }
