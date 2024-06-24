@@ -1,6 +1,7 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
-import { Binary, Expr, Grouping, Literal, Unary } from "./grammar";
+import { Binary, Expr, Grouping, Literal, Unary } from "./expr";
+import { Expression, Print, Stmt } from "./stmt";
 import { report } from "./errors";
 
 class ParseError extends Error {}
@@ -14,14 +15,23 @@ export default class Parser {
     this.tokens = tokens;
   }
 
-  parse(): Expr | null {
-    console.log("Parsing");
-    try {
-      return this.expression();
-    } catch (ex) {
-      console.log(ex);
-      return null;
+  // parse(): Expr | null {
+  //   console.log("Parsing");
+  //   try {
+  //     return this.expression();
+  //   } catch (ex) {
+  //     console.log(ex);
+  //     return null;
+  //   }
+  // }
+
+  parse(): Stmt[] {
+    const statements: Stmt[] = [];
+    while (!this.isAtEnd()) {
+      statements.push(this.statement());
     }
+
+    return statements;
   }
 
   get error(): boolean {
@@ -30,6 +40,25 @@ export default class Parser {
 
   set error(error: boolean) {
     this.hasError = error;
+  }
+
+  private statement(): Stmt {
+    if (this.match(TokenType.PRINT)) {
+      return this.printStatement();
+    }
+    return this.expressionStatement();
+  }
+
+  private printStatement(): Stmt {
+    const expr = this.expression();
+    this.consume(TokenType.SEMICOLON, `Expect ';' after value.`);
+    return new Print(expr);
+  }
+
+  private expressionStatement(): Stmt {
+    const expr = this.expression();
+    this.consume(TokenType.SEMICOLON, `Expect ';' after expression.`);
+    return new Expression(expr);
   }
 
   private expression(): Expr {

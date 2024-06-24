@@ -1,5 +1,5 @@
-import exp from "constants";
-import { Binary, Expr, Grouping, Literal, Unary, Visitor } from "./grammar";
+import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor } from "./expr";
+import { Expression, Print, Stmt, Visitor } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 
@@ -16,27 +16,7 @@ class RuntimeError extends Error {
   }
 }
 
-export class Interpreter extends Visitor<object> {
-  private hasError: boolean = false;
-
-  interpret(expr: Expr) {
-    try {
-      const value = this.evaluate(expr);
-      console.log(this.stringify(value));
-    } catch (ex) {
-      this.hasError = true;
-      console.log("error:", ex);
-    }
-  }
-
-  get error(): boolean {
-    return this.hasError;
-  }
-
-  set error(error: boolean) {
-    this.hasError = error;
-  }
-
+class ExpressionVisitor extends ExprVisitor<object> {
   visitLiteralExpr(expr: Literal): object {
     return Object(expr.value);
   }
@@ -103,7 +83,7 @@ export class Interpreter extends Visitor<object> {
     return new Object(null);
   }
 
-  private evaluate(expr: Expr): object {
+  evaluate(expr: Expr): object {
     return expr.accept(this);
   }
 
@@ -130,6 +110,49 @@ export class Interpreter extends Visitor<object> {
       operator,
       `Operands must be numbers, not '${typeof left}' (${left}) and '${typeof right}' (${right})`
     );
+  }
+}
+
+export class Interpreter extends Visitor<object> {
+  private hasError: boolean = false;
+  private expressionVisitor: ExpressionVisitor;
+
+  constructor() {
+    super();
+    this.expressionVisitor = new ExpressionVisitor();
+  }
+
+  interpret(statements: Stmt[]) {
+    try {
+      for (const stmt of statements) {
+        this.execute(stmt);
+      }
+    } catch (ex) {
+      this.hasError = true;
+      console.log("error:", ex);
+    }
+  }
+
+  get error(): boolean {
+    return this.hasError;
+  }
+
+  set error(error: boolean) {
+    this.hasError = error;
+  }
+
+  execute(stmt: Stmt) {
+    stmt.accept(this);
+  }
+
+  visitExpressionStmt(stmt: Expression): object {
+    return this.expressionVisitor.evaluate(stmt.expression);
+  }
+
+  visitPrintStmt(stmt: Print): object {
+    const value = this.expressionVisitor.evaluate(stmt.expression);
+    console.log(this.stringify(value));
+    return value;
   }
 
   private stringify(obj: object): string {

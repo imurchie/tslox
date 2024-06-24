@@ -7,22 +7,28 @@
 import { program } from "commander";
 import { writeFile } from "node:fs/promises";
 
-const rules = {
-  Binary: [
-    ["Expr", "left"],
-    ["Token", "operator"],
-    ["Expr", "right"],
-  ],
-  Grouping: [["Expr", "expression"]],
-  Literal: [["any", "value"]],
-  Unary: [
-    ["Token", "operator"],
-    ["Expr", "right"],
-  ],
+const RULES = {
+  Expr: {
+    Binary: [
+      ["Expr", "left"],
+      ["Token", "operator"],
+      ["Expr", "right"],
+    ],
+    Grouping: [["Expr", "expression"]],
+    Literal: [["any", "value"]],
+    Unary: [
+      ["Token", "operator"],
+      ["Expr", "right"],
+    ],
+  },
+  Stmt: {
+    Expression: [["Expr", "expression"]],
+    Print: [["Expr", "expression"]],
+  },
 };
 
-function defineBaseClass(): string {
-  let classDef = `export class Expr {\n`;
+function defineBaseClass(name: string): string {
+  let classDef = `export class ${name} {\n`;
   classDef += `  accept<T>(visitor: Visitor<T>): T { // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
   classDef += `    throw new Error("Abstract classes cannot be instantiated.");\n`;
   classDef += `  }\n`;
@@ -31,10 +37,10 @@ function defineBaseClass(): string {
   return classDef;
 }
 
-function defineBaseVisitor(basename: string, types: string[]): string {
+function defineBaseVisitor(name: string, types: string[]): string {
   let classDef = `export abstract class Visitor<T> {\n`;
   for (const type of types) {
-    classDef += `  visit${type}${basename}(expr: ${type}): T { // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
+    classDef += `  visit${type}${name}(${name.toLowerCase()}: ${type}): T { // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
     classDef += `    throw new Error("Abstract classes cannot be instantiated.");\n`;
     classDef += `  }\n\n`;
   }
@@ -43,9 +49,9 @@ function defineBaseVisitor(basename: string, types: string[]): string {
   return classDef;
 }
 
-function defineClass(basename: string, types: string[][]): string {
+function defineClass(basename: string, name: string, types: string[][]): string {
   let classDef = "\n\n";
-  classDef += `export class ${basename} extends Expr {\n`;
+  classDef += `export class ${name} extends ${basename} {\n`;
 
   const params = [];
   for (const [paramType, paramName] of types) {
@@ -62,37 +68,44 @@ function defineClass(basename: string, types: string[][]): string {
   classDef += `  }\n\n`;
 
   classDef += `  accept<T>(visitor: Visitor<T>): T {\n`;
-  classDef += `    return visitor.visit${basename}Expr(this);\n`;
+  classDef += `    return visitor.visit${name}${basename}(this);\n`;
   classDef += `  }\n`;
   classDef += `}\n`;
 
   return classDef;
 }
 
-async function writeAst(dirname: string) {
+async function writeAst(dirname: string, basename: string, rules: { [key: string]: string[][] }) {
   const dirDepth = dirname
     .split("/")
     .map(() => "..")
     .join("/");
-  let source = `import { Token } from "${dirDepth}/lox/token";\n\n`;
-  source += defineBaseClass();
-  source += defineBaseVisitor("Expr", Object.keys(rules));
+  let source = `import { Token } from "${dirDepth}/lox/token";\n`;
+  if (basename != "Expr") {
+    source += `import { Expr } from "${dirDepth}/lox/expr";\n`;
+  }
+  source += "\n\n";
+
+  source += defineBaseClass(basename);
+  source += defineBaseVisitor(basename, Object.keys(rules));
 
   for (const [name, types] of Object.entries(rules)) {
-    source += defineClass(name, types);
+    source += defineClass(basename, name, types);
   }
 
-  await writeFile(`${dirname}/grammar.ts`, source);
+  await writeFile(`${dirname}/${basename.toLowerCase()}.ts`, source);
 }
 
 async function main() {
   program.parse();
 
   if (program.args.length != 1) {
-    console.log(program.usage);
+    console.log(program.usage());
     process.exit(64);
   }
-  await writeAst(program.args[0]);
+  for (const [name, rules] of Object.entries(RULES)) {
+    await writeAst(program.args[0], name, rules);
+  }
 }
 
 main();
