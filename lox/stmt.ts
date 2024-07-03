@@ -1,29 +1,22 @@
-import { Token } from "../lox/token";
+import { Token } from "../lox/token";  // eslint-disable-line @typescript-eslint/no-unused-vars
 import { Expr } from "../lox/expr";
 
-export class Stmt {
-  accept<T>(visitor: Visitor<T>): T {
-    // eslint-disable-line @typescript-eslint/no-unused-vars
-    throw new Error("Abstract classes cannot be instantiated.");
-  }
-}
-export abstract class Visitor<T> {
-  visitExpressionStmt(stmt: Expression): T {
-    // eslint-disable-line @typescript-eslint/no-unused-vars
-    throw new Error("Abstract classes cannot be instantiated.");
-  }
 
-  visitPrintStmt(stmt: Print): T {
-    // eslint-disable-line @typescript-eslint/no-unused-vars
+export class Stmt {
+  accept<T>(visitor: Visitor<T>): T { // eslint-disable-line @typescript-eslint/no-unused-vars
     throw new Error("Abstract classes cannot be instantiated.");
   }
 }
+export interface Visitor<T> {
+  visitExpressionStmt(stmt: Expression): T;
+  visitPrintStmt(stmt: Print): T;
+}
+
 
 export class Expression extends Stmt {
   expression: Expr; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-  constructor(expression: Expr) {
-    // eslint-disable-line @typescript-eslint/no-explicit-any
+  constructor(expression: Expr) { // eslint-disable-line @typescript-eslint/no-explicit-any
     super();
     this.expression = expression;
   }
@@ -33,11 +26,11 @@ export class Expression extends Stmt {
   }
 }
 
+
 export class Print extends Stmt {
   expression: Expr; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-  constructor(expression: Expr) {
-    // eslint-disable-line @typescript-eslint/no-explicit-any
+  constructor(expression: Expr) { // eslint-disable-line @typescript-eslint/no-explicit-any
     super();
     this.expression = expression;
   }
