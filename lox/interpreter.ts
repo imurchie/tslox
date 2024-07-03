@@ -1,5 +1,5 @@
 import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor } from "./expr";
-import { Expression, Print, Stmt, Visitor } from "./stmt";
+import { Expression, Print, Stmt, Visitor as StmtVisitor } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 
@@ -16,7 +16,42 @@ class RuntimeError extends Error {
   }
 }
 
-class ExpressionVisitor extends ExprVisitor<object> {
+export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
+  private hasError: boolean = false;
+
+  interpret(statements: Stmt[]) {
+    try {
+      for (const stmt of statements) {
+        this.execute(stmt);
+      }
+    } catch (ex) {
+      this.hasError = true;
+      console.log("error:", ex);
+    }
+  }
+
+  get error(): boolean {
+    return this.hasError;
+  }
+
+  set error(error: boolean) {
+    this.hasError = error;
+  }
+
+  execute(stmt: Stmt) {
+    stmt.accept(this);
+  }
+
+  visitExpressionStmt(stmt: Expression): object {
+    return this.evaluate(stmt.expression);
+  }
+
+  visitPrintStmt(stmt: Print): object {
+    const value = this.evaluate(stmt.expression);
+    console.log(this.stringify(value));
+    return value;
+  }
+
   visitLiteralExpr(expr: Literal): object {
     return Object(expr.value);
   }
@@ -55,6 +90,7 @@ class ExpressionVisitor extends ExprVisitor<object> {
         if (typeof left == "string" && typeof right == "string") {
           return new String(left + right);
         }
+        throw new RuntimeError(expr.operator, "Trying to add wrong types");
       case TokenType.SLASH:
         this.checkNumberOperands(expr.operator, left, right);
         return new Number(Number(left) / Number(right));
@@ -99,60 +135,17 @@ class ExpressionVisitor extends ExprVisitor<object> {
     return a == b;
   }
 
-  private checkNumberOperand(operator: Token, operand: any) {
+  private checkNumberOperand(operator: Token, operand: any) {  // eslint-disable-line @typescript-eslint/no-explicit-any
     if (typeof operand == "number") return;
     throw new RuntimeError(operator, `Operand must be a number, not '${typeof operand}' (${operand})`);
   }
 
-  private checkNumberOperands(operator: Token, left: any, right: any) {
+  private checkNumberOperands(operator: Token, left: any, right: any) {  // eslint-disable-line @typescript-eslint/no-explicit-any
     if (typeof left == "number" && typeof right == "number") return;
     throw new RuntimeError(
       operator,
       `Operands must be numbers, not '${typeof left}' (${left}) and '${typeof right}' (${right})`
     );
-  }
-}
-
-export class Interpreter extends Visitor<object> {
-  private hasError: boolean = false;
-  private expressionVisitor: ExpressionVisitor;
-
-  constructor() {
-    super();
-    this.expressionVisitor = new ExpressionVisitor();
-  }
-
-  interpret(statements: Stmt[]) {
-    try {
-      for (const stmt of statements) {
-        this.execute(stmt);
-      }
-    } catch (ex) {
-      this.hasError = true;
-      console.log("error:", ex);
-    }
-  }
-
-  get error(): boolean {
-    return this.hasError;
-  }
-
-  set error(error: boolean) {
-    this.hasError = error;
-  }
-
-  execute(stmt: Stmt) {
-    stmt.accept(this);
-  }
-
-  visitExpressionStmt(stmt: Expression): object {
-    return this.expressionVisitor.evaluate(stmt.expression);
-  }
-
-  visitPrintStmt(stmt: Print): object {
-    const value = this.expressionVisitor.evaluate(stmt.expression);
-    console.log(this.stringify(value));
-    return value;
   }
 
   private stringify(obj: object): string {

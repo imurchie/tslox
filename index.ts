@@ -5,7 +5,6 @@ import readline from "node:readline/promises";
 import { readFile } from "node:fs/promises";
 import Scanner from "./lox/scanner";
 import Parser from "./lox/parser";
-import { AstPrinter } from "./lox/ast_printer";
 import { Interpreter } from "./lox/interpreter";
 
 function run(source: string): boolean {

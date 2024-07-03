@@ -1,6 +1,6 @@
 import { Binary, Expr, Grouping, Literal, Unary, Visitor } from "./expr";
 
-export class AstPrinter extends Visitor<string> {
+export class AstPrinter implements Visitor<string> {
   print(expr: Expr): string {
     return expr.accept(this);
   }

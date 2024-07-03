@@ -38,11 +38,9 @@ function defineBaseClass(name: string): string {
 }
 
 function defineBaseVisitor(name: string, types: string[]): string {
-  let classDef = `export abstract class Visitor<T> {\n`;
+  let classDef = `export interface Visitor<T> {\n`;
   for (const type of types) {
-    classDef += `  visit${type}${name}(${name.toLowerCase()}: ${type}): T { // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
-    classDef += `    throw new Error("Abstract classes cannot be instantiated.");\n`;
-    classDef += `  }\n\n`;
+    classDef += `  visit${type}${name}(${name.toLowerCase()}: ${type}): T;\n`;
   }
   classDef += `}\n`;
 
@@ -80,7 +78,7 @@ async function writeAst(dirname: string, basename: string, rules: { [key: string
     .split("/")
     .map(() => "..")
     .join("/");
-  let source = `import { Token } from "${dirDepth}/lox/token";\n`;
+  let source = `import { Token } from "${dirDepth}/lox/token";  // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
   if (basename != "Expr") {
     source += `import { Expr } from "${dirDepth}/lox/expr";\n`;
   }

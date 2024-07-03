@@ -15,16 +15,6 @@ export default class Parser {
     this.tokens = tokens;
   }
 
-  // parse(): Expr | null {
-  //   console.log("Parsing");
-  //   try {
-  //     return this.expression();
-  //   } catch (ex) {
-  //     console.log(ex);
-  //     return null;
-  //   }
-  // }
-
   parse(): Stmt[] {
     const statements: Stmt[] = [];
     while (!this.isAtEnd()) {
