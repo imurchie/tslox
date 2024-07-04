@@ -9,6 +9,7 @@ export interface Visitor<T> {
   visitGroupingExpr(expr: Grouping): T;
   visitLiteralExpr(expr: Literal): T;
   visitUnaryExpr(expr: Unary): T;
+  visitVariableExpr(expr: Variable): T;
 }
 
 
@@ -66,5 +67,19 @@ export class Unary implements Expr {
 
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitUnaryExpr(this);
+  }
+}
+
+
+export class Variable extends Expr {
+  name: Token; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  constructor(name: Token) { // eslint-disable-line @typescript-eslint/no-explicit-any
+    super();
+    this.name = name;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitVariableExpr(this);
   }
 }

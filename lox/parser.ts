@@ -1,7 +1,7 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
 import { Binary, Expr, Grouping, Literal, Unary } from "./expr";
-import { Expression, Print, Stmt } from "./stmt";
+import { Expression, Print, Stmt, Var } from "./stmt";
 import { report } from "./errors";
 
 class ParseError extends Error {}
@@ -19,7 +19,10 @@ export default class Parser {
     const statements: Stmt[] = [];
     while (!this.isAtEnd()) {
       try {
-        statements.push(this.statement());
+        const decl = this.declaration();
+        if (decl != null) {
+          statements.push(decl);
+        }
       } catch (ex) {
         // already logged, so allow to fall through
         // so that _all_ syntax errors get reported in a pass
@@ -35,6 +38,30 @@ export default class Parser {
 
   set error(error: boolean) {
     this.hasError = error;
+  }
+
+  private declaration(): Stmt | null {
+    try {
+      if (this.match(TokenType.VAR)) {
+        return this.varDeclaration();
+      }
+
+      return this.statement();
+    } catch (ex) {
+      this.synchronize();
+      return null;
+    }
+  }
+
+  private varDeclaration(): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, "Expect variable name");
+
+    let initializer: Expr | null = null;
+    if (this.match(TokenType.EQUAL)) {
+      initializer = this.expression();
+    }
+    this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration");
+    return new Var(name, initializer);
   }
 
   private statement(): Stmt {

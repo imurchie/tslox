@@ -20,10 +20,12 @@ const RULES = {
       ["Token", "operator"],
       ["Expr", "right"],
     ],
+    Variable: [["Token", "name"]],
   },
   Stmt: {
     Expression: [["Expr", "expression"]],
     Print: [["Expr", "expression"]],
+    Var: [["Token", "name"], ["Expr", "initializer"]],
   },
 };
 
