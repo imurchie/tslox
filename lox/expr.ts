@@ -1,10 +1,8 @@
 import { Token } from "../lox/token";  // eslint-disable-line @typescript-eslint/no-unused-vars
 
 
-export class Expr {
-  accept<T>(visitor: Visitor<T>): T { // eslint-disable-line @typescript-eslint/no-unused-vars
-    throw new Error("Abstract classes cannot be instantiated.");
-  }
+export interface Expr {
+  accept<T>(visitor: Visitor<T>): T;
 }
 export interface Visitor<T> {
   visitBinaryExpr(expr: Binary): T;
@@ -14,13 +12,12 @@ export interface Visitor<T> {
 }
 
 
-export class Binary extends Expr {
-  left: Expr; // eslint-disable-line @typescript-eslint/no-explicit-any
-  operator: Token; // eslint-disable-line @typescript-eslint/no-explicit-any
-  right: Expr; // eslint-disable-line @typescript-eslint/no-explicit-any
+export class Binary implements Expr {
+  left: Expr;
+  operator: Token;
+  right: Expr;
 
-  constructor(left: Expr, operator: Token, right: Expr) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    super();
+  constructor(left: Expr, operator: Token, right: Expr) {
     this.left = left;
     this.operator = operator;
     this.right = right;
@@ -32,11 +29,10 @@ export class Binary extends Expr {
 }
 
 
-export class Grouping extends Expr {
-  expression: Expr; // eslint-disable-line @typescript-eslint/no-explicit-any
+export class Grouping implements Expr {
+  expression: Expr;
 
-  constructor(expression: Expr) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    super();
+  constructor(expression: Expr) {
     this.expression = expression;
   }
 
@@ -46,11 +42,10 @@ export class Grouping extends Expr {
 }
 
 
-export class Literal extends Expr {
+export class Literal implements Expr {
   value: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
   constructor(value: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    super();
     this.value = value;
   }
 
@@ -60,12 +55,11 @@ export class Literal extends Expr {
 }
 
 
-export class Unary extends Expr {
-  operator: Token; // eslint-disable-line @typescript-eslint/no-explicit-any
-  right: Expr; // eslint-disable-line @typescript-eslint/no-explicit-any
+export class Unary implements Expr {
+  operator: Token;
+  right: Expr;
 
-  constructor(operator: Token, right: Expr) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    super();
+  constructor(operator: Token, right: Expr) {
     this.operator = operator;
     this.right = right;
   }

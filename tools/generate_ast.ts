@@ -27,39 +27,43 @@ const RULES = {
   },
 };
 
-function defineBaseClass(name: string): string {
-  let classDef = `export class ${name} {\n`;
-  classDef += `  accept<T>(visitor: Visitor<T>): T { // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
-  classDef += `    throw new Error("Abstract classes cannot be instantiated.");\n`;
-  classDef += `  }\n`;
-  classDef += `}\n`;
 
-  return classDef;
+function addEslintComment(paramType: string): string {
+  return paramType == "any" ? " // eslint-disable-line @typescript-eslint/no-explicit-any" : "";
+}
+
+function defineBaseInterface(name: string): string {
+  let def = `export interface ${name} {\n`;
+  def += `  accept<T>(visitor: Visitor<T>): T;\n`;
+  def += `}\n`;
+
+  return def;
 }
 
 function defineBaseVisitor(name: string, types: string[]): string {
-  let classDef = `export interface Visitor<T> {\n`;
+  let def = `export interface Visitor<T> {\n`;
   for (const type of types) {
-    classDef += `  visit${type}${name}(${name.toLowerCase()}: ${type}): T;\n`;
+    def += `  visit${type}${name}(${name.toLowerCase()}: ${type}): T;\n`;
   }
-  classDef += `}\n`;
+  def += `}\n`;
 
-  return classDef;
+  return def;
 }
 
 function defineClass(basename: string, name: string, types: string[][]): string {
   let classDef = "\n\n";
-  classDef += `export class ${name} extends ${basename} {\n`;
+  classDef += `export class ${name} implements ${basename} {\n`;
 
   const params = [];
+  let needEslintComment = false;
   for (const [paramType, paramName] of types) {
-    classDef += `  ${paramName}: ${paramType}; // eslint-disable-line @typescript-eslint/no-explicit-any\n`;
+    needEslintComment = needEslintComment || paramType == "any";
+    classDef += `  ${paramName}: ${paramType};${addEslintComment(paramType)}\n`;
     params.push(`${paramName}: ${paramType}`);
   }
 
   classDef += `\n`;
-  classDef += `  constructor(${params.join(", ")}) { // eslint-disable-line @typescript-eslint/no-explicit-any\n`;
-  classDef += `    super();\n`;
+  classDef += `  constructor(${params.join(", ")}) {${addEslintComment(needEslintComment ? "any" : "")}\n`;
   for (const [, paramName] of types) {
     classDef += `    this.${paramName} = ${paramName};\n`;
   }
@@ -84,7 +88,7 @@ async function writeAst(dirname: string, basename: string, rules: { [key: string
   }
   source += "\n\n";
 
-  source += defineBaseClass(basename);
+  source += defineBaseInterface(basename);
   source += defineBaseVisitor(basename, Object.keys(rules));
 
   for (const [name, types] of Object.entries(rules)) {
