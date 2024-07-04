@@ -18,7 +18,12 @@ export default class Parser {
   parse(): Stmt[] {
     const statements: Stmt[] = [];
     while (!this.isAtEnd()) {
-      statements.push(this.statement());
+      try {
+        statements.push(this.statement());
+      } catch (ex) {
+        // already logged, so allow to fall through
+        // so that _all_ syntax errors get reported in a pass
+      }
     }
 
     return statements;
