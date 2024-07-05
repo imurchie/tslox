@@ -1,9 +1,10 @@
-import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor } from "./expr";
-import { Expression, Print, Stmt, Visitor as StmtVisitor } from "./stmt";
+import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor, Variable } from "./expr";
+import { Expression, Print, Stmt, Visitor as StmtVisitor, Var } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
+import { Environment } from "./environment";
 
-class RuntimeError extends Error {
+export class RuntimeError extends Error {
   private _token: Token;
 
   constructor(token: Token, message: string) {
@@ -18,6 +19,7 @@ class RuntimeError extends Error {
 
 export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
   private hasError: boolean = false;
+  private environment = new Environment()
 
   interpret(statements: Stmt[]) {
     try {
@@ -40,6 +42,17 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
 
   execute(stmt: Stmt) {
     stmt.accept(this);
+  }
+
+  visitVarStmt(stmt: Var): object {
+    let value: object = new Literal(null);
+    if (stmt.initializer != value) {
+      value = this.evaluate(stmt.initializer);
+    }
+
+    this.environment.define(stmt.name.lexeme, value);
+
+    return value;
   }
 
   visitExpressionStmt(stmt: Expression): object {
@@ -117,6 +130,10 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
 
     // unreachable
     return new Object(null);
+  }
+
+  visitVariableExpr(expr: Variable): object {
+    return this.environment.get(expr.name);
   }
 
   evaluate(expr: Expr): object {

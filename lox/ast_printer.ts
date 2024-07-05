@@ -1,4 +1,4 @@
-import { Binary, Expr, Grouping, Literal, Unary, Visitor } from "./expr";
+import { Binary, Expr, Grouping, Literal, Unary, Variable, Visitor } from "./expr";
 
 export class AstPrinter implements Visitor<string> {
   print(expr: Expr): string {
@@ -19,6 +19,10 @@ export class AstPrinter implements Visitor<string> {
 
   visitUnaryExpr(expr: Unary): string {
     return this.parenthesize(expr.operator.lexeme, expr.right);
+  }
+
+  visitVariableExpr(expr: Variable): string {
+    return `var ${expr.name}`;
   }
 
   parenthesize(name: string, ...exprs: Expr[]): string {

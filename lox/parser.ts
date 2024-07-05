@@ -1,6 +1,6 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
-import { Binary, Expr, Grouping, Literal, Unary } from "./expr";
+import { Binary, Expr, Grouping, Literal, Unary, Variable } from "./expr";
 import { Expression, Print, Stmt, Var } from "./stmt";
 import { report } from "./errors";
 
@@ -56,7 +56,7 @@ export default class Parser {
   private varDeclaration(): Stmt {
     const name = this.consume(TokenType.IDENTIFIER, "Expect variable name");
 
-    let initializer: Expr | null = null;
+    let initializer: Expr = new Literal(null);
     if (this.match(TokenType.EQUAL)) {
       initializer = this.expression();
     }
@@ -152,6 +152,10 @@ export default class Parser {
 
     if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new Literal(this.previous().literal);
+    }
+
+    if (this.match(TokenType.IDENTIFIER)) {
+      return new Variable(this.previous());
     }
 
     if (this.match(TokenType.LEFT_PAREN)) {

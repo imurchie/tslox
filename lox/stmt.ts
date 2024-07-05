@@ -38,12 +38,11 @@ export class Print implements Stmt {
 }
 
 
-export class Var extends Stmt {
-  name: Token; // eslint-disable-line @typescript-eslint/no-explicit-any
-  initializer: Expr; // eslint-disable-line @typescript-eslint/no-explicit-any
+export class Var implements Stmt {
+  name: Token;
+  initializer: Expr;
 
-  constructor(name: Token, initializer: Expr) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    super();
+  constructor(name: Token, initializer: Expr) {
     this.name = name;
     this.initializer = initializer;
   }

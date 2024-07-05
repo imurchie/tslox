@@ -71,11 +71,10 @@ export class Unary implements Expr {
 }
 
 
-export class Variable extends Expr {
-  name: Token; // eslint-disable-line @typescript-eslint/no-explicit-any
+export class Variable implements Expr {
+  name: Token;
 
-  constructor(name: Token) { // eslint-disable-line @typescript-eslint/no-explicit-any
-    super();
+  constructor(name: Token) {
     this.name = name;
   }
 
