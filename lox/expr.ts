@@ -53,6 +53,10 @@ export class Literal implements Expr {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitLiteralExpr(this);
   }
+
+  toString(): string {
+    return this.value != null ? String(this.value) : "nil";
+  }
 }
 
 

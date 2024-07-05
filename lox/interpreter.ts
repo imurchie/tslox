@@ -46,7 +46,7 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
 
   visitVarStmt(stmt: Var): object {
     let value: object = new Literal(null);
-    if (stmt.initializer != value) {
+    if (stmt.initializer == null) {
       value = this.evaluate(stmt.initializer);
     }
 
@@ -166,10 +166,6 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
   }
 
   private stringify(obj: object): string {
-    const value = obj.valueOf();
-
-    if (value == null) return "nil";
-
-    return `${value}`;
+    return String(obj.valueOf());
   }
 }
