@@ -1,9 +1,7 @@
 /* This is a generated file. Do not manually edit! */
 
-
-import { Token } from "../lox/token";  // eslint-disable-line @typescript-eslint/no-unused-vars
+import { Token } from "../lox/token"; // eslint-disable-line @typescript-eslint/no-unused-vars
 import { Expr } from "../lox/expr";
-
 
 export interface Stmt {
   accept<T>(visitor: Visitor<T>): T;
@@ -13,7 +11,6 @@ export interface Visitor<T> {
   visitPrintStmt(stmt: Print): T;
   visitVarStmt(stmt: Var): T;
 }
-
 
 export class Expression implements Stmt {
   expression: Expr;
@@ -25,8 +22,10 @@ export class Expression implements Stmt {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitExpressionStmt(this);
   }
+  toString(): string {
+    return `Expression { expression: ${this.expression} }`;
+  }
 }
-
 
 export class Print implements Stmt {
   expression: Expr;
@@ -38,8 +37,10 @@ export class Print implements Stmt {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitPrintStmt(this);
   }
+  toString(): string {
+    return `Print { expression: ${this.expression} }`;
+  }
 }
-
 
 export class Var implements Stmt {
   name: Token;
@@ -52,5 +53,8 @@ export class Var implements Stmt {
 
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitVarStmt(this);
+  }
+  toString(): string {
+    return `Var { name: ${this.name} initializer: ${this.initializer} }`;
   }
 }
