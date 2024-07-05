@@ -1,4 +1,4 @@
-import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor, Variable } from "./expr";
+import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor, Variable, Assign } from "./expr";
 import { Expression, Print, Stmt, Visitor as StmtVisitor, Var } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
@@ -19,7 +19,7 @@ export class RuntimeError extends Error {
 
 export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
   private hasError: boolean = false;
-  private environment = new Environment()
+  private environment = new Environment();
 
   interpret(statements: Stmt[]) {
     try {
@@ -137,6 +137,12 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     return this.environment.get(expr.name);
   }
 
+  visitAssignExpr(expr: Assign): object {
+    const value = this.evaluate(expr.value);
+    this.environment.assign(expr.name, value);
+    return value;
+  }
+
   evaluate(expr: Expr): object {
     return expr.accept(this);
   }
@@ -153,12 +159,14 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     return a == b;
   }
 
-  private checkNumberOperand(operator: Token, operand: any) {  // eslint-disable-line @typescript-eslint/no-explicit-any
+  private checkNumberOperand(operator: Token, operand: any) {
+    // eslint-disable-line @typescript-eslint/no-explicit-any
     if (typeof operand == "number") return;
     throw new RuntimeError(operator, `Operand must be a number, not '${typeof operand}' (${operand})`);
   }
 
-  private checkNumberOperands(operator: Token, left: any, right: any) {  // eslint-disable-line @typescript-eslint/no-explicit-any
+  private checkNumberOperands(operator: Token, left: any, right: any) {
+    // eslint-disable-line @typescript-eslint/no-explicit-any
     if (typeof left == "number" && typeof right == "number") return;
     throw new RuntimeError(
       operator,

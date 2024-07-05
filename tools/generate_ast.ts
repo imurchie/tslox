@@ -9,6 +9,10 @@ import { writeFile } from "node:fs/promises";
 
 const RULES = {
   Expr: {
+    Assign: [
+      ["Token", "name"],
+      ["Expr", "value"],
+    ],
     Binary: [
       ["Expr", "left"],
       ["Token", "operator"],
@@ -25,10 +29,12 @@ const RULES = {
   Stmt: {
     Expression: [["Expr", "expression"]],
     Print: [["Expr", "expression"]],
-    Var: [["Token", "name"], ["Expr", "initializer"]],
+    Var: [
+      ["Token", "name"],
+      ["Expr", "initializer"],
+    ],
   },
 };
-
 
 function addEslintComment(paramType: string): string {
   return paramType == "any" ? " // eslint-disable-line @typescript-eslint/no-explicit-any" : "";
@@ -58,11 +64,14 @@ function defineClass(basename: string, name: string, types: string[][]): string 
 
   const params = [];
   let needEslintComment = false;
+  let stringRep = `${name} {`;
   for (const [paramType, paramName] of types) {
     needEslintComment = needEslintComment || paramType == "any";
     classDef += `  ${paramName}: ${paramType};${addEslintComment(paramType)}\n`;
     params.push(`${paramName}: ${paramType}`);
+    stringRep += ` ${paramName}: \$\{this.${paramName}\}`;
   }
+  stringRep += ` }`;
 
   classDef += `\n`;
   classDef += `  constructor(${params.join(", ")}) {${addEslintComment(needEslintComment ? "any" : "")}\n`;
@@ -74,6 +83,11 @@ function defineClass(basename: string, name: string, types: string[][]): string 
   classDef += `  accept<T>(visitor: Visitor<T>): T {\n`;
   classDef += `    return visitor.visit${name}${basename}(this);\n`;
   classDef += `  }\n`;
+
+  classDef += `  toString(): string {\n`;
+  classDef += `    return \`${stringRep}\`;\n`;
+  classDef += `  }\n`;
+
   classDef += `}\n`;
 
   return classDef;
@@ -84,7 +98,7 @@ async function writeAst(dirname: string, basename: string, rules: { [key: string
     .split("/")
     .map(() => "..")
     .join("/");
-  
+
   let source = "/* This is a generated file. Do not manually edit! */\n\n\n";
   source += `import { Token } from "${dirDepth}/lox/token";  // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
   if (basename != "Expr") {
