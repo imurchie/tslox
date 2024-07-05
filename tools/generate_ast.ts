@@ -84,7 +84,9 @@ async function writeAst(dirname: string, basename: string, rules: { [key: string
     .split("/")
     .map(() => "..")
     .join("/");
-  let source = `import { Token } from "${dirDepth}/lox/token";  // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
+  
+  let source = "/* This is a generated file. Do not manually edit! */\n\n\n";
+  source += `import { Token } from "${dirDepth}/lox/token";  // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
   if (basename != "Expr") {
     source += `import { Expr } from "${dirDepth}/lox/expr";\n`;
   }
