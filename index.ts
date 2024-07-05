@@ -7,7 +7,7 @@ import Scanner from "./lox/scanner";
 import Parser from "./lox/parser";
 import { Interpreter } from "./lox/interpreter";
 
-function run(source: string): boolean {
+function run(source: string, interpreter: Interpreter | null = null): boolean {
   const scanner = new Scanner(source);
   const tokens = scanner.scanTokens();
 
@@ -27,7 +27,7 @@ function run(source: string): boolean {
     return parser.error;
   }
 
-  const interpreter = new Interpreter();
+  interpreter = interpreter || new Interpreter();
   interpreter.interpret(statements);
 
   return interpreter.error;
@@ -50,12 +50,13 @@ async function runPrompt() {
     output: process.stdout,
   });
 
+  const interpreter = new Interpreter();
   for (;;) {
     const line = await rl.question(">>> ");
     if (!line) {
       continue;
     }
-    run(line);
+    run(line, interpreter);
   }
   rl.close();
 }

@@ -6,8 +6,10 @@ A Typescript implementation of the _Lox_ programming language interpreter.
 ## Grammar
 | name | rule |
 |------|------|
-| program | statement* EOF |
-| statement | exprStmt | printStmt |
+| program | declaration* EOF |
+| declaration | varDecl \| statement |
+| varDecl | "var" IDENTIFIER ( "=" expression )? ";" |
+| statement | exprStmt \| printStmt |
 | exprStmt | expression ";" |
 | printStmt | "print" expression ";" |
 | expression | equality |
@@ -16,7 +18,7 @@ A Typescript implementation of the _Lox_ programming language interpreter.
 | term | factor ( ( "-" \| "+" ) factor)* |
 | factor | unary ( ( "/" \| "\*" ) unary)* |
 | unary | ( "!" \| "-" ) unary | primary |
-| primary | NUMBER \| STRING \| "true" \| "false" \| "nil" \| "(" expression ")" |
+| primary | NUMBER \| STRING \| "true" \| "false" \| "nil" \| "(" expression ")" \| IDENTIFIER |
 
 
 ### AST generation

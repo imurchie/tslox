@@ -8,6 +8,7 @@ export interface Stmt {
 export interface Visitor<T> {
   visitExpressionStmt(stmt: Expression): T;
   visitPrintStmt(stmt: Print): T;
+  visitVarStmt(stmt: Var): T;
 }
 
 
@@ -33,5 +34,20 @@ export class Print implements Stmt {
 
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitPrintStmt(this);
+  }
+}
+
+
+export class Var implements Stmt {
+  name: Token;
+  initializer: Expr;
+
+  constructor(name: Token, initializer: Expr) {
+    this.name = name;
+    this.initializer = initializer;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitVarStmt(this);
   }
 }
