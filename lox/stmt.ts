@@ -1,3 +1,6 @@
+/* This is a generated file. Do not manually edit! */
+
+
 import { Token } from "../lox/token";  // eslint-disable-line @typescript-eslint/no-unused-vars
 import { Expr } from "../lox/expr";
 

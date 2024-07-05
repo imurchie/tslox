@@ -1,3 +1,6 @@
+/* This is a generated file. Do not manually edit! */
+
+
 import { Token } from "../lox/token";  // eslint-disable-line @typescript-eslint/no-unused-vars
 
 
@@ -52,10 +55,6 @@ export class Literal implements Expr {
 
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitLiteralExpr(this);
-  }
-
-  toString(): string {
-    return this.value != null ? String(this.value) : "nil";
   }
 }
 
