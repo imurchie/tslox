@@ -1,5 +1,5 @@
 import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor, Variable, Assign } from "./expr";
-import { Block, Expression, Print, Stmt, Visitor as StmtVisitor, Var } from "./stmt";
+import { Block, Expression, If, Print, Stmt, Visitor as StmtVisitor, Var } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 import { Environment } from "./environment";
@@ -97,6 +97,17 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     return new LoxReturnValue(undefined);
   }
 
+  visitIfStmt(stmt: If): object {
+    if (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.thenBranch);
+    } else {
+      if (stmt.elseBranch != null) {
+        this.execute(stmt.elseBranch);
+      }
+    }
+    return new LoxReturnValue(undefined);
+  }
+
   visitLiteralExpr(expr: Literal): object {
     return new LoxReturnValue(expr.value);
   }
@@ -150,7 +161,7 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
         return new Number(left >= right);
       case TokenType.LESS:
         this.checkNumberOperands(expr.operator, left, right);
-        return new Number(left < right);
+        return new Boolean(left < right);
       case TokenType.LESS_EQUAL:
         this.checkNumberOperands(expr.operator, left, right);
         return new Number(left <= right);
@@ -181,7 +192,7 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
   private isTruthy(obj: object): boolean {
     if (obj == null) return false;
     if (typeof obj == "boolean") return Boolean(obj);
-    return true;
+    return !!obj.valueOf();
   }
 
   private isEqual(a: object, b: object): boolean {

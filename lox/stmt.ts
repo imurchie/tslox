@@ -9,6 +9,7 @@ export interface Stmt {
 export interface Visitor<T> {
   visitBlockStmt(stmt: Block): T;
   visitExpressionStmt(stmt: Expression): T;
+  visitIfStmt(stmt: If): T;
   visitPrintStmt(stmt: Print): T;
   visitVarStmt(stmt: Var): T;
 }
@@ -42,6 +43,26 @@ export class Expression implements Stmt {
 
   toString(): string {
     return `Expression { expression: ${this.expression} }`;
+  }
+}
+
+export class If implements Stmt {
+  condition: Expr;
+  thenBranch: Stmt;
+  elseBranch: Stmt | null;
+
+  constructor(condition: Expr, thenBranch: Stmt, elseBranch: Stmt | null) {
+    this.condition = condition;
+    this.thenBranch = thenBranch;
+    this.elseBranch = elseBranch;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitIfStmt(this);
+  }
+
+  toString(): string {
+    return `If { condition: ${this.condition} thenBranch: ${this.thenBranch} elseBranch: ${this.elseBranch} }`;
   }
 }
 
