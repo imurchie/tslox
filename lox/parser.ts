@@ -29,6 +29,10 @@ export default class Parser {
       }
     }
 
+    if (this.error) {
+      throw new ParseError();
+    }
+
     return statements;
   }
 

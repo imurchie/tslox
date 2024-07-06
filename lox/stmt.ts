@@ -23,6 +23,7 @@ export class Block implements Stmt {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitBlockStmt(this);
   }
+
   toString(): string {
     return `Block { statements: ${this.statements} }`;
   }
@@ -38,6 +39,7 @@ export class Expression implements Stmt {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitExpressionStmt(this);
   }
+
   toString(): string {
     return `Expression { expression: ${this.expression} }`;
   }
@@ -53,6 +55,7 @@ export class Print implements Stmt {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitPrintStmt(this);
   }
+
   toString(): string {
     return `Print { expression: ${this.expression} }`;
   }
@@ -70,6 +73,7 @@ export class Var implements Stmt {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitVarStmt(this);
   }
+
   toString(): string {
     return `Var { name: ${this.name} initializer: ${this.initializer} }`;
   }

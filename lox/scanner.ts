@@ -4,6 +4,8 @@ import { error } from "./errors";
 import { isAlpha, isAlphaNumeric, isDigit } from "./utils";
 import keywords from "./keywords";
 
+class ScanError extends Error {}
+
 export default class Scanner {
   private source: string;
   private tokens: Token[];
@@ -28,8 +30,6 @@ export default class Scanner {
   }
 
   scanTokens(): Token[] {
-    console.log("Scanning");
-
     while (!this.isAtEnd()) {
       this.start = this.current;
       this.scanToken();
@@ -37,6 +37,10 @@ export default class Scanner {
 
     // add sentinel for future parsing
     this.tokens.push(new Token(TokenType.EOF, "", null, this.line));
+
+    if (this.error) {
+      throw new ScanError();
+    }
 
     return this.tokens;
   }

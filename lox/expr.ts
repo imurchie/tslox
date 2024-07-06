@@ -26,6 +26,7 @@ export class Assign implements Expr {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitAssignExpr(this);
   }
+
   toString(): string {
     return `Assign { name: ${this.name} value: ${this.value} }`;
   }
@@ -45,6 +46,7 @@ export class Binary implements Expr {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitBinaryExpr(this);
   }
+
   toString(): string {
     return `Binary { left: ${this.left} operator: ${this.operator} right: ${this.right} }`;
   }
@@ -60,6 +62,7 @@ export class Grouping implements Expr {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitGroupingExpr(this);
   }
+
   toString(): string {
     return `Grouping { expression: ${this.expression} }`;
   }
@@ -76,6 +79,7 @@ export class Literal implements Expr {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitLiteralExpr(this);
   }
+
   toString(): string {
     return `Literal { value: ${this.value} }`;
   }
@@ -93,6 +97,7 @@ export class Unary implements Expr {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitUnaryExpr(this);
   }
+
   toString(): string {
     return `Unary { operator: ${this.operator} right: ${this.right} }`;
   }
@@ -108,6 +113,7 @@ export class Variable implements Expr {
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitVariableExpr(this);
   }
+
   toString(): string {
     return `Variable { name: ${this.name} }`;
   }
