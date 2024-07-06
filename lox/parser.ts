@@ -1,7 +1,7 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
 import { Assign, Binary, Expr, Grouping, Literal, Unary, Variable } from "./expr";
-import { Block, Expression, Print, Stmt, Var } from "./stmt";
+import { Block, Expression, If, Print, Stmt, Var } from "./stmt";
 import { report } from "./errors";
 
 class ParseError extends Error {}
@@ -69,6 +69,9 @@ export default class Parser {
   }
 
   private statement(): Stmt {
+    if (this.match(TokenType.IF)) {
+      return this.ifStatement();
+    }
     if (this.match(TokenType.PRINT)) {
       return this.printStatement();
     }
@@ -76,6 +79,20 @@ export default class Parser {
       return new Block(this.block());
     }
     return this.expressionStatement();
+  }
+
+  private ifStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'");
+    const condition = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition");
+
+    const thenBranch = this.statement();
+    let elseBranch: Stmt | null = null;
+    if (this.match(TokenType.ELSE)) {
+      elseBranch = this.statement();
+    }
+
+    return new If(condition, thenBranch, elseBranch);
   }
 
   private printStatement(): Stmt {
@@ -131,7 +148,7 @@ export default class Parser {
   private equality(): Expr {
     let expr = this.comparison();
 
-    while (this.match(TokenType.EQUAL_EQUAL)) {
+    while (this.match(TokenType.EQUAL) || this.match(TokenType.EQUAL_EQUAL)) {
       const operator = this.previous();
       const right = this.comparison();
       expr = new Binary(expr, operator, right);

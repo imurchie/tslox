@@ -29,6 +29,11 @@ const RULES = {
   Stmt: {
     Block: [["Stmt[]", "statements"]],
     Expression: [["Expr", "expression"]],
+    If: [
+      ["Expr", "condition"],
+      ["Stmt", "thenBranch"],
+      ["Stmt | null", "elseBranch"],
+    ],
     Print: [["Expr", "expression"]],
     Var: [
       ["Token", "name"],

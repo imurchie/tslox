@@ -9,7 +9,8 @@ A Typescript implementation of the _Lox_ programming language interpreter.
 | program | declaration* EOF |
 | declaration | varDecl \| statement |
 | varDecl | "var" IDENTIFIER ( "=" expression )? ";" |
-| statement | exprStmt \| printStmt \| block |
+| statement | exprStmt \| ifStmt \| printStmt \| block |
+| ifStmt | "if" "(" expression ")" statement ( "else" statement )? |
 | block | "{" declaration "}" |
 | exprStmt | expression ";" |
 | printStmt | "print" expression ";" |

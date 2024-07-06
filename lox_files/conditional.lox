@@ -1,0 +1,9 @@
+var a = 7;
+
+if (a < 6) {
+    print a;
+} else {
+    print "nope";
+}
+
+print "done";

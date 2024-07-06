@@ -86,7 +86,7 @@ export default class Scanner {
         this.addToken(this.match("=") ? TokenType.EQUAL_EQUAL : TokenType.EQUAL, null);
         break;
       case "<":
-        this.addToken(this.match("=") ? TokenType.LESS_EQUAL : TokenType.EQUAL, null);
+        this.addToken(this.match("=") ? TokenType.LESS_EQUAL : TokenType.LESS, null);
         break;
       case ">":
         this.addToken(this.match("=") ? TokenType.GREATER_EQUAL : TokenType.GREATER, null);
