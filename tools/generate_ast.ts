@@ -85,6 +85,8 @@ function defineClass(basename: string, name: string, types: string[][]): string 
   classDef += `    return visitor.visit${name}${basename}(this);\n`;
   classDef += `  }\n`;
 
+  classDef += `\n`;
+
   classDef += `  toString(): string {\n`;
   classDef += `    return \`${stringRep}\`;\n`;
   classDef += `  }\n`;

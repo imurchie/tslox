@@ -17,19 +17,31 @@ export class RuntimeError extends Error {
   }
 }
 
+export class LoxReturnValue {
+  private value: any;
+  constructor(value: any) {
+    this.value = value;
+  }
+  valueOf() {
+    return this.value;
+  }
+}
+
 export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
   private hasError: boolean = false;
   private environment = new Environment();
 
-  interpret(statements: Stmt[]) {
+  interpret(statements: Stmt[]): any {
+    let res = null;
     try {
       for (const stmt of statements) {
-        this.execute(stmt);
+        res = this.execute(stmt);
       }
     } catch (ex) {
       this.hasError = true;
-      console.log("error:", ex);
+      throw ex;
     }
+    return res.valueOf();
   }
 
   get error(): boolean {
@@ -40,8 +52,8 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     this.hasError = error;
   }
 
-  execute(stmt: Stmt) {
-    stmt.accept(this);
+  execute(stmt: Stmt): any {
+    return stmt.accept(this);
   }
 
   executeBlock(statements: Stmt[], environment: Environment): void {
@@ -66,7 +78,7 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
 
     this.environment.define(stmt.name.lexeme, value);
 
-    return value;
+    return new LoxReturnValue(undefined);
   }
 
   visitExpressionStmt(stmt: Expression): object {
@@ -76,16 +88,17 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
   visitPrintStmt(stmt: Print): object {
     const value = this.evaluate(stmt.expression);
     console.log(this.stringify(value));
-    return value;
+
+    return new LoxReturnValue(undefined);
   }
 
   visitBlockStmt(stmt: Block): object {
     this.executeBlock(stmt.statements, new Environment(this.environment));
-    return new Object(null);
+    return new LoxReturnValue(undefined);
   }
 
   visitLiteralExpr(expr: Literal): object {
-    return Object(expr.value);
+    return new LoxReturnValue(expr.value);
   }
 
   visitGroupingExpr(expr: Grouping): object {
@@ -196,6 +209,9 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     let value = obj.valueOf();
     if (value instanceof Literal) {
       value = value.value;
+      if (value == null) {
+        value = "nil";
+      }
     }
 
     return String(value);
