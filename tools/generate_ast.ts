@@ -27,6 +27,7 @@ const RULES = {
     Variable: [["Token", "name"]],
   },
   Stmt: {
+    Block: [["Stmt[]", "statements"]],
     Expression: [["Expr", "expression"]],
     Print: [["Expr", "expression"]],
     Var: [
