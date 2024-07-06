@@ -1,5 +1,5 @@
 import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor, Variable, Assign } from "./expr";
-import { Expression, Print, Stmt, Visitor as StmtVisitor, Var } from "./stmt";
+import { Block, Expression, Print, Stmt, Visitor as StmtVisitor, Var } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 import { Environment } from "./environment";
@@ -44,6 +44,19 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     stmt.accept(this);
   }
 
+  executeBlock(statements: Stmt[], environment: Environment): void {
+    const previous = this.environment;
+    try {
+      this.environment = environment;
+      for (const stmt of statements) {
+        this.execute(stmt);
+      }
+    } finally {
+      // reset the environment when the block goes out of scope
+      this.environment = previous;
+    }
+  }
+
   visitVarStmt(stmt: Var): object {
     let value: object = new Literal(null);
 
@@ -64,6 +77,11 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     const value = this.evaluate(stmt.expression);
     console.log(this.stringify(value));
     return value;
+  }
+
+  visitBlockStmt(stmt: Block): object {
+    this.executeBlock(stmt.statements, new Environment(this.environment));
+    return new Object(null);
   }
 
   visitLiteralExpr(expr: Literal): object {

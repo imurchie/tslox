@@ -1,7 +1,7 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
 import { Assign, Binary, Expr, Grouping, Literal, Unary, Variable } from "./expr";
-import { Expression, Print, Stmt, Var } from "./stmt";
+import { Block, Expression, Print, Stmt, Var } from "./stmt";
 import { report } from "./errors";
 
 class ParseError extends Error {}
@@ -68,6 +68,9 @@ export default class Parser {
     if (this.match(TokenType.PRINT)) {
       return this.printStatement();
     }
+    if (this.match(TokenType.LEFT_BRACE)) {
+      return new Block(this.block());
+    }
     return this.expressionStatement();
   }
 
@@ -75,6 +78,20 @@ export default class Parser {
     const expr = this.expression();
     this.consume(TokenType.SEMICOLON, `Expect ';' after value.`);
     return new Print(expr);
+  }
+
+  private block(): Stmt[] {
+    const statements: Stmt[] = [];
+
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+      const stmt = this.declaration();
+      if (stmt != null) {
+        statements.push(stmt);
+      }
+    }
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after block");
+
+    return statements;
   }
 
   private expressionStatement(): Stmt {
