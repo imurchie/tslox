@@ -1,7 +1,7 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
 import { Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable } from "./expr";
-import { Block, Expression, If, Print, Stmt, Var } from "./stmt";
+import { Block, Expression, If, Print, Stmt, Var, While } from "./stmt";
 import { report } from "./errors";
 
 class ParseError extends Error {}
@@ -78,6 +78,9 @@ export default class Parser {
     if (this.match(TokenType.LEFT_BRACE)) {
       return new Block(this.block());
     }
+    if (this.match(TokenType.WHILE)) {
+      return this.whileStatement();
+    }
     return this.expressionStatement();
   }
 
@@ -113,6 +116,15 @@ export default class Parser {
     this.consume(TokenType.RIGHT_BRACE, "Expect '}' after block");
 
     return statements;
+  }
+
+  private whileStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'");
+    const condition = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition");
+    const body = this.statement();
+
+    return new While(condition, body);
   }
 
   private expressionStatement(): Stmt {
@@ -172,7 +184,7 @@ export default class Parser {
   private equality(): Expr {
     let expr = this.comparison();
 
-    while (this.match(TokenType.EQUAL) || this.match(TokenType.EQUAL_EQUAL)) {
+    while (this.match(TokenType.EQUAL_EQUAL)) {
       const operator = this.previous();
       const right = this.comparison();
       expr = new Binary(expr, operator, right);

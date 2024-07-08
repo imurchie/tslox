@@ -44,11 +44,15 @@ const RULES = {
       ["Token", "name"],
       ["Expr", "initializer"],
     ],
+    While: [
+      ["Expr", "condition"],
+      ["Stmt", "body"],
+    ],
   },
 };
 
 function addEslintComment(paramType: string): string {
-  return paramType == "any" ? " // eslint-disable-line @typescript-eslint/no-explicit-any" : "";
+  return paramType == "any" ? "// eslint-disable-line @typescript-eslint/no-explicit-any" : "";
 }
 
 function defineBaseInterface(name: string): string {
@@ -113,7 +117,7 @@ async function writeAst(dirname: string, basename: string, rules: { [key: string
     .join("/");
 
   let source = "/* This is a generated file. Do not manually edit! */\n\n\n";
-  source += `import { Token } from "${dirDepth}/lox/token";  // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
+  source += `import { Token } from "${dirDepth}/lox/token"; // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
   if (basename != "Expr") {
     source += `import { Expr } from "${dirDepth}/lox/expr";\n`;
   }
