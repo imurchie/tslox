@@ -1,4 +1,4 @@
-import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor, Variable, Assign } from "./expr";
+import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor, Variable, Assign, Logical } from "./expr";
 import { Block, Expression, If, Print, Stmt, Visitor as StmtVisitor, Var } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
@@ -183,6 +183,18 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     const value = this.evaluate(expr.value);
     this.environment.assign(expr.name, value);
     return value;
+  }
+
+  visitLogicalExpr(expr: Logical): object {
+    const left = this.evaluate(expr.left);
+
+    if (expr.operator.type == TokenType.OR) {
+      if (this.isTruthy(left)) return left;
+    } else {
+      if (!this.isTruthy(left)) return left;
+    }
+
+    return this.evaluate(expr.right);
   }
 
   evaluate(expr: Expr): object {

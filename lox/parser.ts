@@ -1,6 +1,6 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
-import { Assign, Binary, Expr, Grouping, Literal, Unary, Variable } from "./expr";
+import { Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable } from "./expr";
 import { Block, Expression, If, Print, Stmt, Var } from "./stmt";
 import { report } from "./errors";
 
@@ -126,7 +126,7 @@ export default class Parser {
   }
 
   private assignment(): Expr {
-    const expr = this.equality();
+    const expr = this.or();
 
     if (this.match(TokenType.EQUAL)) {
       const equals = this.previous();
@@ -140,6 +140,30 @@ export default class Parser {
       // report error, but do not throw, since this is not
       // a situation that needs to be recovered from
       this.reportError(equals, "Invalid assignment target");
+    }
+
+    return expr;
+  }
+
+  private or(): Expr {
+    let expr = this.and();
+
+    while (this.match(TokenType.OR)) {
+      const operator = this.previous();
+      const right = this.and();
+      expr = new Logical(expr, operator, right);
+    }
+
+    return expr;
+  }
+
+  private and(): Expr {
+    let expr = this.equality();
+
+    while (this.match(TokenType.AND)) {
+      const operator = this.previous();
+      const right = this.equality();
+      expr = new Logical(expr, operator, right);
     }
 
     return expr;
