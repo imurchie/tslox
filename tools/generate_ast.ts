@@ -20,6 +20,11 @@ const RULES = {
     ],
     Grouping: [["Expr", "expression"]],
     Literal: [["any", "value"]],
+    Logical: [
+      ["Expr", "left"],
+      ["Token", "operator"],
+      ["Expr", "right"],
+    ],
     Unary: [
       ["Token", "operator"],
       ["Expr", "right"],

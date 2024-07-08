@@ -10,6 +10,7 @@ export interface Visitor<T> {
   visitBinaryExpr(expr: Binary): T;
   visitGroupingExpr(expr: Grouping): T;
   visitLiteralExpr(expr: Literal): T;
+  visitLogicalExpr(expr: Logical): T;
   visitUnaryExpr(expr: Unary): T;
   visitVariableExpr(expr: Variable): T;
 }
@@ -82,6 +83,26 @@ export class Literal implements Expr {
 
   toString(): string {
     return `Literal { value: ${this.value} }`;
+  }
+}
+
+export class Logical implements Expr {
+  left: Expr;
+  operator: Token;
+  right: Expr;
+
+  constructor(left: Expr, operator: Token, right: Expr) {
+    this.left = left;
+    this.operator = operator;
+    this.right = right;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitLogicalExpr(this);
+  }
+
+  toString(): string {
+    return `Logical { left: ${this.left} operator: ${this.operator} right: ${this.right} }`;
   }
 }
 
