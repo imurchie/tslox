@@ -1,5 +1,5 @@
 import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor, Variable, Assign, Logical } from "./expr";
-import { Block, Expression, If, Print, Stmt, Visitor as StmtVisitor, Var } from "./stmt";
+import { Block, Expression, If, Print, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 import { Environment } from "./environment";
@@ -138,7 +138,7 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     switch (expr.operator.type) {
       case TokenType.MINUS:
         this.checkNumberOperands(expr.operator, left, right);
-        return new Number(Number(left) + Number(right));
+        return new Number(Number(left) - Number(right));
       case TokenType.PLUS:
         if (typeof left == "number" && typeof right == "number") {
           return new Number(left + right);
@@ -195,6 +195,14 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     }
 
     return this.evaluate(expr.right);
+  }
+
+  visitWhileStmt(stmt: While): object {
+    while (this.isTruthy(this.evaluate(stmt.condition))) {
+      this.execute(stmt.body);
+    }
+
+    return new LoxReturnValue(undefined);
   }
 
   evaluate(expr: Expr): object {

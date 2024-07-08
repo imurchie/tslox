@@ -12,6 +12,7 @@ export interface Visitor<T> {
   visitIfStmt(stmt: If): T;
   visitPrintStmt(stmt: Print): T;
   visitVarStmt(stmt: Var): T;
+  visitWhileStmt(stmt: While): T;
 }
 
 export class Block implements Stmt {
@@ -97,5 +98,23 @@ export class Var implements Stmt {
 
   toString(): string {
     return `Var { name: ${this.name} initializer: ${this.initializer} }`;
+  }
+}
+
+export class While implements Stmt {
+  condition: Expr;
+  body: Stmt;
+
+  constructor(condition: Expr, body: Stmt) {
+    this.condition = condition;
+    this.body = body;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitWhileStmt(this);
+  }
+
+  toString(): string {
+    return `While { condition: ${this.condition} body: ${this.body} }`;
   }
 }

@@ -29,6 +29,7 @@ export class Environment {
   assign(name: Token, value: object): void {
     if (name.lexeme in this.values) {
       this.values[name.lexeme] = value;
+      return;
     }
 
     // go through enclosing scopes to see if we find anything
