@@ -128,7 +128,7 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     }
 
     // unreachable
-    return new Object(null);
+    return new LoxReturnValue(undefined);
   }
 
   visitBinaryExpr(expr: Binary): object {
@@ -172,7 +172,7 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     }
 
     // unreachable
-    return new Object(null);
+    return new LoxReturnValue(undefined);
   }
 
   visitVariableExpr(expr: Variable): object {
