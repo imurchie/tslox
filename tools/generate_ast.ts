@@ -18,6 +18,11 @@ const RULES = {
       ["Token", "operator"],
       ["Expr", "right"],
     ],
+    Call: [
+      ["Expr", "callee"],
+      ["Token", "paren"],
+      ["Expr[]", "args"],
+    ],
     Grouping: [["Expr", "expression"]],
     Literal: [["any", "value"]],
     Logical: [
