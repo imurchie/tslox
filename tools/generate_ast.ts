@@ -33,6 +33,7 @@ const RULES = {
   },
   Stmt: {
     Block: [["Stmt[]", "statements"]],
+    Break: [],
     Expression: [["Expr", "expression"]],
     If: [
       ["Expr", "condition"],
@@ -82,7 +83,7 @@ function defineClass(basename: string, name: string, types: string[][]): string 
   let stringRep = `${name} {`;
   for (const [paramType, paramName] of types) {
     needEslintComment = needEslintComment || paramType == "any";
-    classDef += `  ${paramName}: ${paramType};${addEslintComment(paramType)}\n`;
+    classDef += `  ${paramName}: ${paramType}; ${addEslintComment(paramType)}\n`;
     params.push(`${paramName}: ${paramType}`);
     stringRep += ` ${paramName}: \$\{this.${paramName}\}`;
   }
