@@ -14,6 +14,8 @@ import { Block, Break, Expression, If, Print, Stmt, Visitor as StmtVisitor, Var,
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 import { Environment } from "./environment";
+import { LoxCallable, LoxReturnValue } from "./internal";
+import { ClockBuiltin } from "./builtins";
 
 export class RuntimeError extends Error {
   private _token: Token;
@@ -30,28 +32,14 @@ export class RuntimeError extends Error {
 
 class BreakException extends Error {}
 
-export class LoxCallable {
-  arity(): number {
-    throw new Error("Base class");
-  }
-  call(interpreter: Interpreter, args: object[]): object {
-    throw new Error("Base class");
-  }
-}
-
-export class LoxReturnValue {
-  private value: any;
-  constructor(value: any) {
-    this.value = value;
-  }
-  valueOf() {
-    return this.value;
-  }
-}
-
 export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
   private hasError: boolean = false;
-  private environment = new Environment();
+  private globals = new Environment();
+  private environment = this.globals;
+
+  constructor() {
+    this.globals.define("clock", new ClockBuiltin());
+  }
 
   interpret(statements: Stmt[]): any {
     let res = null;
@@ -255,7 +243,7 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
       throw new RuntimeError(expr.paren, `Expected ${arity} arguments but got ${args.length}`);
     }
 
-    return callee.call(this, args);
+    return callee.call(args);
   }
 
   evaluate(expr: Expr): object {
