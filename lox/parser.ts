@@ -1,7 +1,7 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
 import { Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable } from "./expr";
-import { Block, Expression, If, Print, Stmt, Var, While } from "./stmt";
+import { Block, Break, Expression, If, Print, Stmt, Var, While } from "./stmt";
 import { report } from "./errors";
 
 class ParseError extends Error {}
@@ -83,6 +83,9 @@ export default class Parser {
     }
     if (this.match(TokenType.FOR)) {
       return this.forStatement();
+    }
+    if (this.match(TokenType.BREAK)) {
+      return this.breakStatement();
     }
     return this.expressionStatement();
   }
@@ -170,6 +173,11 @@ export default class Parser {
     }
 
     return body;
+  }
+
+  private breakStatement(): Stmt {
+    this.consume(TokenType.SEMICOLON, "Expect ';' after break");
+    return new Break();
   }
 
   private expressionStatement(): Stmt {

@@ -1,5 +1,5 @@
 import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor, Variable, Assign, Logical } from "./expr";
-import { Block, Expression, If, Print, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
+import { Block, Break, Expression, If, Print, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 import { Environment } from "./environment";
@@ -16,6 +16,8 @@ export class RuntimeError extends Error {
     return this._token;
   }
 }
+
+class BreakException extends Error {}
 
 export class LoxReturnValue {
   private value: any;
@@ -108,6 +110,25 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     return new LoxReturnValue(undefined);
   }
 
+  visitWhileStmt(stmt: While): object {
+    try {
+      while (this.isTruthy(this.evaluate(stmt.condition))) {
+        this.execute(stmt.body);
+      }
+    } catch (ex) {
+      if (!(ex instanceof BreakException)) {
+        throw ex;
+      }
+    }
+
+    return new LoxReturnValue(undefined);
+  }
+
+  visitBreakStmt(stmt: Break): object {
+    throw new BreakException();
+    // return new LoxReturnValue(undefined);
+  }
+
   visitLiteralExpr(expr: Literal): object {
     return new LoxReturnValue(expr.value);
   }
@@ -195,14 +216,6 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     }
 
     return this.evaluate(expr.right);
-  }
-
-  visitWhileStmt(stmt: While): object {
-    while (this.isTruthy(this.evaluate(stmt.condition))) {
-      this.execute(stmt.body);
-    }
-
-    return new LoxReturnValue(undefined);
   }
 
   evaluate(expr: Expr): object {
