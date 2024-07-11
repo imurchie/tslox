@@ -81,6 +81,9 @@ export default class Parser {
     if (this.match(TokenType.WHILE)) {
       return this.whileStatement();
     }
+    if (this.match(TokenType.FOR)) {
+      return this.forStatement();
+    }
     return this.expressionStatement();
   }
 
@@ -125,6 +128,48 @@ export default class Parser {
     const body = this.statement();
 
     return new While(condition, body);
+  }
+
+  private forStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'");
+
+    let initializer: Stmt | null = null;
+    if (this.match(TokenType.SEMICOLON)) {
+      // remains null
+    } else if (this.match(TokenType.VAR)) {
+      initializer = this.varDeclaration();
+    } else {
+      initializer = this.expressionStatement();
+    }
+
+    let condition: Expr = new Literal(true);
+    if (!this.check(TokenType.SEMICOLON)) {
+      condition = this.expression();
+    }
+    this.consume(TokenType.SEMICOLON, "Expect ';' after for loop condition");
+
+    let increment: Expr = new Literal(true);
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      increment = this.expression();
+    }
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses");
+
+    let body = this.statement();
+
+    // run the increment after the body
+    if (increment != null) {
+      body = new Block([body, new Expression(increment)]);
+    }
+
+    // create a while loop with the condition
+    body = new While(condition, body);
+
+    // if there is an initializer, run it before the body
+    if (initializer != null) {
+      body = new Block([initializer, body]);
+    }
+
+    return body;
   }
 
   private expressionStatement(): Stmt {
