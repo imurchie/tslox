@@ -8,6 +8,7 @@ export interface Expr {
 export interface Visitor<T> {
   visitAssignExpr(expr: Assign): T;
   visitBinaryExpr(expr: Binary): T;
+  visitCallExpr(expr: Call): T;
   visitGroupingExpr(expr: Grouping): T;
   visitLiteralExpr(expr: Literal): T;
   visitLogicalExpr(expr: Logical): T;
@@ -50,6 +51,26 @@ export class Binary implements Expr {
 
   toString(): string {
     return `Binary { left: ${this.left} operator: ${this.operator} right: ${this.right} }`;
+  }
+}
+
+export class Call implements Expr {
+  callee: Expr;
+  paren: Token;
+  args: Expr[];
+
+  constructor(callee: Expr, paren: Token, args: Expr[]) {
+    this.callee = callee;
+    this.paren = paren;
+    this.args = args;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitCallExpr(this);
+  }
+
+  toString(): string {
+    return `Call { callee: ${this.callee} paren: ${this.paren} arguments: ${this.args} }`;
   }
 }
 

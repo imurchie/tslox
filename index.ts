@@ -11,9 +11,9 @@ function run(source: string, interpreter: Interpreter | null = null): any {
   const scanner = new Scanner(source);
   const tokens = scanner.scanTokens();
 
-  for (const token of tokens) {
-    console.log(token);
-  }
+  // for (const token of tokens) {
+  //   console.log(token);
+  // }
 
   // if (scanner.error) {
   //   console.log("Scanner error");

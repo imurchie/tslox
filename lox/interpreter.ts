@@ -1,4 +1,15 @@
-import { Binary, Expr, Grouping, Literal, Unary, Visitor as ExprVisitor, Variable, Assign, Logical } from "./expr";
+import {
+  Binary,
+  Expr,
+  Grouping,
+  Literal,
+  Unary,
+  Visitor as ExprVisitor,
+  Variable,
+  Assign,
+  Logical,
+  Call,
+} from "./expr";
 import { Block, Break, Expression, If, Print, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
@@ -18,6 +29,15 @@ export class RuntimeError extends Error {
 }
 
 class BreakException extends Error {}
+
+export class LoxCallable {
+  arity(): number {
+    throw new Error("Base class");
+  }
+  call(interpreter: Interpreter, args: object[]): object {
+    throw new Error("Base class");
+  }
+}
 
 export class LoxReturnValue {
   private value: any;
@@ -216,6 +236,26 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
     }
 
     return this.evaluate(expr.right);
+  }
+
+  visitCallExpr(expr: Call): object {
+    const callee = this.evaluate(expr.callee);
+
+    let args: object[] = [];
+    for (const arg of expr.args) {
+      args.push(this.evaluate(arg));
+    }
+
+    if (!(callee instanceof LoxCallable)) {
+      throw new RuntimeError(expr.paren, "Can only call functions and classes");
+    }
+
+    const arity = callee.arity();
+    if (args.length !== arity) {
+      throw new RuntimeError(expr.paren, `Expected ${arity} arguments but got ${args.length}`);
+    }
+
+    return callee.call(this, args);
   }
 
   evaluate(expr: Expr): object {

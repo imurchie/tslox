@@ -25,7 +25,9 @@ A Typescript implementation of the _Lox_ programming language interpreter.
 | comparison | term ( ( ">" \| ">=" \| "<" \| "<=" ) term)* |
 | term | factor ( ( "-" \| "+" ) factor)* |
 | factor | unary ( ( "/" \| "\*" ) unary)* |
-| unary | ( "!" \| "-" ) unary | primary |
+| unary | ( "!" \| "-" ) unary | call |
+| call | primary ( "(" arguments? ")" )* |
+| arguments | expression ( "," expression )* |
 | primary | NUMBER \| STRING \| "true" \| "false" \| "nil" \| "(" expression ")" \| IDENTIFIER |
 
 

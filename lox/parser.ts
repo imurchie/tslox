@@ -1,8 +1,9 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
-import { Assign, Binary, Expr, Grouping, Literal, Logical, Unary, Variable } from "./expr";
+import { Assign, Binary, Call, Expr, Grouping, Literal, Logical, Unary, Variable } from "./expr";
 import { Block, Break, Expression, If, Print, Stmt, Var, While } from "./stmt";
 import { report } from "./errors";
+import { MAX_ARITY } from "./constants";
 
 class ParseError extends Error {}
 
@@ -289,7 +290,37 @@ export default class Parser {
       return new Unary(operator, right);
     }
 
-    return this.primary();
+    return this.call();
+  }
+
+  private call(): Expr {
+    let expr = this.primary();
+
+    while (true) {
+      if (this.match(TokenType.LEFT_PAREN)) {
+        expr = this.finishCall(expr);
+      } else {
+        break;
+      }
+    }
+
+    return expr;
+  }
+
+  private finishCall(callee: Expr): Expr {
+    let args: Expr[] = [];
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (args.length >= MAX_ARITY) {
+          this.reportError(this.peek(), `Cannot have more than ${MAX_ARITY} arguments`);
+        }
+        args.push(this.expression());
+      } while (this.match(TokenType.COMMA));
+    }
+
+    const paren = this.consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments");
+
+    return new Call(callee, paren, args);
   }
 
   private primary(): Expr {
