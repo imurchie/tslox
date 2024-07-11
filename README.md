@@ -1,6 +1,6 @@
 # TSLox: Typescript Lox
 
-A Typescript implementation of the _Lox_ programming language interpreter.
+A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ programming language tree-walk interpreter, based on the [Java](https://www.java.com/en/) implementation in [Robert Nystrom's](https://stuffwithstuff.com/) amazing book _[Crafting Interpreters](https://craftinginterpreters.com/)_.
 
 
 ## Grammar
