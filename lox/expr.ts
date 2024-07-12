@@ -70,7 +70,7 @@ export class Call implements Expr {
   }
 
   toString(): string {
-    return `Call { callee: ${this.callee} paren: ${this.paren} arguments: ${this.args} }`;
+    return `Call { callee: ${this.callee} paren: ${this.paren} args: ${this.args} }`;
   }
 }
 

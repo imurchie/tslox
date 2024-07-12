@@ -1,3 +1,4 @@
+import { Interpreter } from "./interfaces";
 import { LoxCallable, LoxReturnValue } from "./internal";
 
 export class ClockBuiltin extends LoxCallable {
@@ -5,7 +6,7 @@ export class ClockBuiltin extends LoxCallable {
     return 0;
   }
 
-  call(args: object[]): LoxReturnValue {
+  call(interpreter: Interpreter, args: object[]): LoxReturnValue {
     return new LoxReturnValue(Date.now() / 1000);
   }
 

@@ -5,9 +5,9 @@ import readline from "node:readline/promises";
 import { readFile } from "node:fs/promises";
 import Scanner from "./lox/scanner";
 import Parser from "./lox/parser";
-import { Interpreter } from "./lox/interpreter";
+import { LoxInterpreter } from "./lox/interpreter";
 
-function run(source: string, interpreter: Interpreter | null = null): any {
+function run(source: string, interpreter: LoxInterpreter | null = null): any {
   const scanner = new Scanner(source);
   const tokens = scanner.scanTokens();
 
@@ -27,7 +27,7 @@ function run(source: string, interpreter: Interpreter | null = null): any {
   //   return parser.error;
   // }
 
-  interpreter = interpreter || new Interpreter();
+  interpreter = interpreter || new LoxInterpreter();
   return interpreter.interpret(statements);
 }
 
@@ -51,7 +51,7 @@ async function runPrompt() {
     output: process.stdout,
   });
 
-  const interpreter = new Interpreter();
+  const interpreter = new LoxInterpreter();
   try {
     for (;;) {
       const line = await rl.question(">>> ");

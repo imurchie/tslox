@@ -2,6 +2,7 @@ import { TokenType } from "./token_type";
 
 export default new Map([
   ["and", TokenType.AND],
+  ["break", TokenType.BREAK],
   ["class", TokenType.CLASS],
   ["else", TokenType.ELSE],
   ["false", TokenType.FALSE],
@@ -17,5 +18,4 @@ export default new Map([
   ["true", TokenType.TRUE],
   ["var", TokenType.VAR],
   ["while", TokenType.WHILE],
-  ["break", TokenType.BREAK],
 ]);

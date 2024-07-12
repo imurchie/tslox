@@ -1,7 +1,7 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
 import { Assign, Binary, Call, Expr, Grouping, Literal, Logical, Unary, Variable } from "./expr";
-import { Block, Break, Expression, If, Print, Stmt, Var, While } from "./stmt";
+import { Block, Break, Expression, Func, If, Print, Stmt, Var, While } from "./stmt";
 import { report } from "./errors";
 import { MAX_ARITY } from "./constants";
 
@@ -47,6 +47,9 @@ export default class Parser {
 
   private declaration(): Stmt | null {
     try {
+      if (this.match(TokenType.FUN)) {
+        return this.fnDeclaration("function");
+      }
       if (this.match(TokenType.VAR)) {
         return this.varDeclaration();
       }
@@ -56,6 +59,28 @@ export default class Parser {
       this.synchronize();
       return null;
     }
+  }
+
+  private fnDeclaration(kind: string): Func {
+    const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name`);
+    this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind} name`);
+
+    const parameters: Token[] = [];
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (parameters.length >= MAX_ARITY) {
+          this.reportError(this.peek(), `Cannot have more than ${MAX_ARITY} parameters`);
+        }
+
+        parameters.push(this.consume(TokenType.IDENTIFIER, "Expect parameter name"));
+      } while (this.match(TokenType.COMMA));
+    }
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters");
+
+    this.consume(TokenType.LEFT_BRACE, `Expect '{' before ${kind} body`);
+    const body = this.block();
+
+    return new Func(name, parameters, body);
   }
 
   private varDeclaration(): Stmt {

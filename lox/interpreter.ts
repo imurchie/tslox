@@ -10,12 +10,13 @@ import {
   Logical,
   Call,
 } from "./expr";
-import { Block, Break, Expression, If, Print, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
+import { Block, Break, Expression, Func, If, Print, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 import { Environment } from "./environment";
-import { LoxCallable, LoxReturnValue } from "./internal";
+import { LoxCallable, LoxFunction, LoxReturnValue } from "./internal";
 import { ClockBuiltin } from "./builtins";
+import { Interpreter } from "./interfaces";
 
 export class RuntimeError extends Error {
   private _token: Token;
@@ -32,10 +33,10 @@ export class RuntimeError extends Error {
 
 class BreakException extends Error {}
 
-export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
+export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVisitor<object> {
   private hasError: boolean = false;
-  private globals = new Environment();
-  private environment = this.globals;
+  globals = new Environment();
+  environment = this.globals;
 
   constructor() {
     this.globals.define("clock", new ClockBuiltin());
@@ -77,6 +78,12 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
       // reset the environment when the block goes out of scope
       this.environment = previous;
     }
+  }
+
+  visitFuncStmt(stmt: Func): object {
+    const fn = new LoxFunction(stmt);
+    this.environment.define(stmt.name.lexeme, fn);
+    return new LoxReturnValue(undefined);
   }
 
   visitVarStmt(stmt: Var): object {
@@ -243,7 +250,7 @@ export class Interpreter implements StmtVisitor<object>, ExprVisitor<object> {
       throw new RuntimeError(expr.paren, `Expected ${arity} arguments but got ${args.length}`);
     }
 
-    return callee.call(args);
+    return callee.call(this, args);
   }
 
   evaluate(expr: Expr): object {
