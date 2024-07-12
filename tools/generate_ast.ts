@@ -40,6 +40,11 @@ const RULES = {
     Block: [["Stmt[]", "statements"]],
     Break: [],
     Expression: [["Expr", "expression"]],
+    Func: [
+      ["Token", "name"],
+      ["Token[]", "params"],
+      ["Stmt[]", "body"],
+    ],
     If: [
       ["Expr", "condition"],
       ["Stmt", "thenBranch"],

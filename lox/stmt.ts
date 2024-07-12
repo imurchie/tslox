@@ -10,6 +10,7 @@ export interface Visitor<T> {
   visitBlockStmt(stmt: Block): T;
   visitBreakStmt(stmt: Break): T;
   visitExpressionStmt(stmt: Expression): T;
+  visitFuncStmt(stmt: Func): T;
   visitIfStmt(stmt: If): T;
   visitPrintStmt(stmt: Print): T;
   visitVarStmt(stmt: Var): T;
@@ -57,6 +58,26 @@ export class Expression implements Stmt {
 
   toString(): string {
     return `Expression { expression: ${this.expression} }`;
+  }
+}
+
+export class Func implements Stmt {
+  name: Token;
+  params: Token[];
+  body: Stmt[];
+
+  constructor(name: Token, params: Token[], body: Stmt[]) {
+    this.name = name;
+    this.params = params;
+    this.body = body;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitFuncStmt(this);
+  }
+
+  toString(): string {
+    return `Func { name: ${this.name} params: ${this.params} body: ${this.body} }`;
   }
 }
 
