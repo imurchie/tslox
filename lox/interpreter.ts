@@ -10,7 +10,7 @@ import {
   Logical,
   Call,
 } from "./expr";
-import { Block, Break, Expression, Func, If, Print, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
+import { Block, Break, Expression, Func, If, Print, Return, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 import { Environment } from "./environment";
@@ -32,6 +32,15 @@ export class RuntimeError extends Error {
 }
 
 class BreakException extends Error {}
+
+export class ReturnException extends Error {
+  value: object | null = null;
+
+  constructor(value: object | null) {
+    super();
+    this.value = value;
+  }
+}
 
 export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVisitor<object> {
   private hasError: boolean = false;
@@ -107,6 +116,15 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
     console.log(this.stringify(value));
 
     return new LoxReturnValue(undefined);
+  }
+
+  visitReturnStmt(stmt: Return): object {
+    let value: object | null = null;
+    if (stmt.value != null) {
+      value = this.evaluate(stmt.value);
+    }
+
+    throw new ReturnException(value);
   }
 
   visitBlockStmt(stmt: Block): object {
@@ -288,9 +306,10 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
     let value = obj.valueOf();
     if (value instanceof Literal) {
       value = value.value;
-      if (value == null) {
-        value = "nil";
-      }
+    }
+
+    if (value == null) {
+      value = "nil";
     }
 
     return String(value);

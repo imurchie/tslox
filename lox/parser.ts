@@ -1,7 +1,7 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
 import { Assign, Binary, Call, Expr, Grouping, Literal, Logical, Unary, Variable } from "./expr";
-import { Block, Break, Expression, Func, If, Print, Stmt, Var, While } from "./stmt";
+import { Block, Break, Expression, Func, If, Print, Return, Stmt, Var, While } from "./stmt";
 import { report } from "./errors";
 import { MAX_ARITY } from "./constants";
 
@@ -113,6 +113,9 @@ export default class Parser {
     if (this.match(TokenType.BREAK)) {
       return this.breakStatement();
     }
+    if (this.match(TokenType.RETURN)) {
+      return this.returnStatement();
+    }
     return this.expressionStatement();
   }
 
@@ -204,6 +207,16 @@ export default class Parser {
   private breakStatement(): Stmt {
     this.consume(TokenType.SEMICOLON, "Expect ';' after break");
     return new Break();
+  }
+
+  private returnStatement(): Stmt {
+    const keyword = this.previous();
+    let value: Expr = new Literal(null);
+    if (!this.check(TokenType.SEMICOLON)) {
+      value = this.expression();
+    }
+    this.consume(TokenType.SEMICOLON, "Expect ';' after return value");
+    return new Return(keyword, value);
   }
 
   private expressionStatement(): Stmt {

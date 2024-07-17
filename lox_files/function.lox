@@ -5,3 +5,17 @@ fun test(a, b, c) {
 }
 
 test(1, 2, 3);
+
+fun test2() {
+    print "here";
+    return "test";
+}
+
+print test2();
+
+fun test3() {
+    print "also here";
+    return;
+}
+
+print test3();

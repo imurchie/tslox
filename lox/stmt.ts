@@ -13,6 +13,7 @@ export interface Visitor<T> {
   visitFuncStmt(stmt: Func): T;
   visitIfStmt(stmt: If): T;
   visitPrintStmt(stmt: Print): T;
+  visitReturnStmt(stmt: Return): T;
   visitVarStmt(stmt: Var): T;
   visitWhileStmt(stmt: While): T;
 }
@@ -114,6 +115,24 @@ export class Print implements Stmt {
 
   toString(): string {
     return `Print { expression: ${this.expression} }`;
+  }
+}
+
+export class Return implements Stmt {
+  keyword: Token;
+  value: Expr;
+
+  constructor(keyword: Token, value: Expr) {
+    this.keyword = keyword;
+    this.value = value;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitReturnStmt(this);
+  }
+
+  toString(): string {
+    return `Return { keyword: ${this.keyword} value: ${this.value} }`;
   }
 }
 
