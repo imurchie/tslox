@@ -51,6 +51,10 @@ const RULES = {
       ["Stmt | null", "elseBranch"],
     ],
     Print: [["Expr", "expression"]],
+    Return: [
+      ["Token", "keyword"],
+      ["Expr", "value"],
+    ],
     Var: [
       ["Token", "name"],
       ["Expr", "initializer"],

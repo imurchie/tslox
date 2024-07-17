@@ -1,22 +1,26 @@
 import { Interpreter } from "./interfaces";
+import { ReturnException } from "./interpreter";
 import { Func } from "./stmt";
 
-// this should be an interface, but then checking that it is one when running
-// it is not possible, afaict
 export class LoxReturnValue {
   private value: any;
   constructor(value: any) {
     this.value = value;
   }
+
   valueOf(): any {
+    const value = this.value != undefined ? this.value : null;
     return this.value;
   }
 }
 
+// this should be an interface, but then checking that it is one when running
+// it is not possible, afaict
 export class LoxCallable {
   arity(): number {
     throw new Error("Base class");
   }
+
   call(interpreter: Interpreter, args: object[]): LoxReturnValue {
     throw new Error("Base class");
   }
@@ -40,7 +44,15 @@ export class LoxFunction extends LoxCallable {
       environment.define(this.declaration.params[i].lexeme, args[i]);
     }
 
-    interpreter.executeBlock(this.declaration.body, environment);
+    try {
+      interpreter.executeBlock(this.declaration.body, environment);
+    } catch (ex) {
+      if (ex instanceof ReturnException) {
+        const value = ex.value == null ? undefined : ex.value.valueOf();
+        return new LoxReturnValue(value);
+      }
+      throw ex;
+    }
     return new LoxReturnValue(undefined);
   }
 

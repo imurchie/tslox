@@ -12,7 +12,7 @@ A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ prog
 | function | IDENTIFIER "(" parameters? ")" block |
 | parameters | IDENTIFIER ( "," IDENTIFIER )* |
 | varDecl | "var" IDENTIFIER ( "=" expression )? ";" |
-| statement | exprStmt \| forStmt \| ifStmt \| printStmt \| whileStmt \| block \| breakStmt |
+| statement | exprStmt \| forStmt \| ifStmt \| printStmt \| returnStmt \| whileStmt \| block \| breakStmt |
 | breakStmt | "break" ";" |
 | forStmt | "for" "(" (varDecl \| exprStmt \| ";" ) expression? ";" expression? ")" statement |
 | ifStmt | "if" "(" expression ")" statement ( "else" statement )? |
@@ -20,6 +20,7 @@ A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ prog
 | block | "{" declaration "}" |
 | exprStmt | expression ";" |
 | printStmt | "print" expression ";" |
+| returnStmt | "return" expression? ";" |
 | expression | assignment |
 | assignment | IDENTIFIER "=" assignment \| logic_or |
 | logic_or | logic_and ( "or" logic_and )* |
