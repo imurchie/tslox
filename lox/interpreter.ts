@@ -90,7 +90,7 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
   }
 
   visitFuncStmt(stmt: Func): object {
-    const fn = new LoxFunction(stmt);
+    const fn = new LoxFunction(stmt, this.environment);
     this.environment.define(stmt.name.lexeme, fn);
     return new LoxReturnValue(undefined);
   }
@@ -159,7 +159,6 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
 
   visitBreakStmt(stmt: Break): object {
     throw new BreakException();
-    // return new LoxReturnValue(undefined);
   }
 
   visitLiteralExpr(expr: Literal): object {
@@ -252,7 +251,7 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
   }
 
   visitCallExpr(expr: Call): object {
-    const callee = this.evaluate(expr.callee);
+    const callee = this.evaluate(expr.callee).valueOf();
 
     let args: object[] = [];
     for (const arg of expr.args) {

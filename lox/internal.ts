@@ -1,3 +1,4 @@
+import { Environment } from "./environment";
 import { Interpreter } from "./interfaces";
 import { ReturnException } from "./interpreter";
 import { Func } from "./stmt";
@@ -28,10 +29,12 @@ export class LoxCallable {
 
 export class LoxFunction extends LoxCallable {
   private declaration: Func;
+  private closure: Environment;
 
-  constructor(declaration: Func) {
+  constructor(declaration: Func, closure: Environment) {
     super();
     this.declaration = declaration;
+    this.closure = closure;
   }
 
   arity(): number {
@@ -39,7 +42,7 @@ export class LoxFunction extends LoxCallable {
   }
 
   call(interpreter: Interpreter, args: object[]): LoxReturnValue {
-    const environment = interpreter.globals;
+    const environment = new Environment(this.closure);
     for (let i = 0; i < this.declaration.params.length; i++) {
       environment.define(this.declaration.params[i].lexeme, args[i]);
     }
