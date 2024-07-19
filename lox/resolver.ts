@@ -13,6 +13,10 @@ import {
 import { Interpreter } from "./interfaces";
 import { Block, Break, Expression, Func, If, Print, Return, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
 import { Token } from "./token";
+import { report } from "./errors";
+import { TokenType } from "./token_type";
+
+class ResolverError extends Error {}
 
 class ScopeStack {
   private scopes: Array<Map<string, boolean>> = new Array<Map<string, boolean>>();
@@ -45,9 +49,18 @@ class ScopeStack {
 export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private interpreter: Interpreter;
   private scopes = new ScopeStack();
+  private hasError = false;
 
   constructor(interpreter: Interpreter) {
     this.interpreter = interpreter;
+  }
+
+  get error(): boolean {
+    return this.hasError;
+  }
+
+  set error(error: boolean) {
+    this.hasError = error;
   }
 
   resolve(node: Expr | Stmt | Stmt[]): void {
@@ -58,6 +71,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
       }
     } else {
       node.accept(this);
+    }
+
+    if (this.error) {
+      throw new ResolverError();
     }
   }
 
@@ -96,7 +113,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
 
   visitVariableExpr(expr: Variable): void {
     if (!this.scopes.empty && this.scopes.current?.get(expr.name.lexeme) === false) {
-      // error
+      this.reportError(expr.name, `Cannot read local variable '${expr.name.lexeme}' in its own initializer`);
     }
 
     this.resolveLocal(expr, expr.name);
@@ -178,6 +195,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     const scope = this.scopes.current;
     if (scope == undefined) return;
 
+    if (scope.has(name.lexeme)) {
+      this.reportError(name, `Already a variable with name '${name.lexeme}' in this scope`);
+    }
+
     // set the variable as false, to indicate that it is not defined
     scope.set(name.lexeme, false);
   }
@@ -196,5 +217,17 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
 
   private endScope(): void {
     this.scopes.end();
+  }
+
+  private reportError(token: Token, message: string): ResolverError {
+    this.error = true;
+
+    if (token.type == TokenType.EOF) {
+      report(token.line, ` at end`, message);
+    } else {
+      report(token.line, ` at '${token.lexeme}'`, message);
+    }
+
+    return new ResolverError(message);
   }
 }
