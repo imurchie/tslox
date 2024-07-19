@@ -46,9 +46,21 @@ class ScopeStack {
   }
 }
 
+const FunctionType = {
+  NONE: 0,
+  FUNCTION: 1,
+};
+
+const LoopType = {
+  NONE: 0,
+  WHILE: 1,
+};
+
 export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private interpreter: Interpreter;
   private scopes = new ScopeStack();
+  private currentFunction = FunctionType.NONE;
+  private currentLoop = LoopType.NONE;
   private hasError = false;
 
   constructor(interpreter: Interpreter) {
@@ -87,7 +99,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
   }
 
-  private resolveFunction(stmt: Func): void {
+  private resolveFunction(stmt: Func, functionType: number): void {
+    const enclosingFunction = this.currentFunction;
+    this.currentFunction = functionType;
+
     this.beginScope();
     for (const param of stmt.params) {
       this.declare(param);
@@ -95,6 +110,8 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     }
     this.resolve(stmt.body);
     this.endScope();
+
+    this.currentFunction = enclosingFunction;
   }
 
   visitBlockStmt(stmt: Block): void {
@@ -127,7 +144,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitFuncStmt(stmt: Func): void {
     this.declare(stmt.name);
     this.define(stmt.name);
-    this.resolveFunction(stmt);
+    this.resolveFunction(stmt, FunctionType.FUNCTION);
   }
 
   visitExpressionStmt(stmt: Expression): void {
@@ -147,14 +164,22 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitReturnStmt(stmt: Return): void {
+    if (this.currentFunction == FunctionType.NONE) {
+      this.reportError(stmt.keyword, `Cannot return from top-level code`);
+    }
     if (stmt.value != null) {
       this.resolve(stmt.value);
     }
   }
 
   visitWhileStmt(stmt: While): void {
+    const enclosingLoop = this.currentLoop;
+    this.currentLoop = LoopType.WHILE;
+
     this.resolve(stmt.condition);
     this.resolve(stmt.body);
+
+    this.currentLoop = enclosingLoop;
   }
 
   visitBinaryExpr(expr: Binary): void {
@@ -163,7 +188,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitBreakStmt(stmt: Break): void {
-    // no expression to resolve
+    if (this.currentLoop == LoopType.NONE) {
+      this.reportError(stmt.token, `Cannot break outside of loop`);
+    }
+    // nothing to resolve
   }
 
   visitCallExpr(expr: Call): void {
