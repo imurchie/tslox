@@ -6,6 +6,7 @@ import { readFile } from "node:fs/promises";
 import Scanner from "./lox/scanner";
 import Parser from "./lox/parser";
 import { LoxInterpreter } from "./lox/interpreter";
+import { Resolver } from "./lox/resolver";
 
 function run(source: string, interpreter: LoxInterpreter | null = null): any {
   const scanner = new Scanner(source);
@@ -15,19 +16,14 @@ function run(source: string, interpreter: LoxInterpreter | null = null): any {
   //   console.log(token);
   // }
 
-  // if (scanner.error) {
-  //   console.log("Scanner error");
-  //   return scanner.error;
-  // }
-
-  //   return scanner.error;
   const parser = new Parser(tokens);
   const statements = parser.parse();
-  // if (statements == null || parser.error) {
-  //   return parser.error;
-  // }
 
   interpreter = interpreter || new LoxInterpreter();
+
+  const resolver = new Resolver(interpreter);
+  resolver.resolve(statements);
+
   return interpreter.interpret(statements);
 }
 

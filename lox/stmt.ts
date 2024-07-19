@@ -35,14 +35,18 @@ export class Block implements Stmt {
 }
 
 export class Break implements Stmt {
-  constructor() {}
+  token: Token;
+
+  constructor(token: Token) {
+    this.token = token;
+  }
 
   accept<T>(visitor: Visitor<T>): T {
     return visitor.visitBreakStmt(this);
   }
 
   toString(): string {
-    return `Break { }`;
+    return `Break { token: ${this.token} }`;
   }
 }
 

@@ -38,7 +38,7 @@ const RULES = {
   },
   Stmt: {
     Block: [["Stmt[]", "statements"]],
-    Break: [],
+    Break: [["Token", "token"]],
     Expression: [["Expr", "expression"]],
     Func: [
       ["Token", "name"],

@@ -205,8 +205,9 @@ export default class Parser {
   }
 
   private breakStatement(): Stmt {
+    const breakToken = this.previous();
     this.consume(TokenType.SEMICOLON, "Expect ';' after break");
-    return new Break();
+    return new Break(breakToken);
   }
 
   private returnStatement(): Stmt {

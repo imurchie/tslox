@@ -46,6 +46,7 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
   private hasError: boolean = false;
   globals = new Environment();
   environment = this.globals;
+  private locals = new Map<Expr, number>();
 
   constructor() {
     this.globals.define("clock", new ClockBuiltin());
@@ -229,12 +230,21 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
   }
 
   visitVariableExpr(expr: Variable): object {
-    return this.environment.get(expr.name);
+    // return this.environment.get(expr.name);
+    return this.lookUpVariable(expr.name, expr);
   }
 
   visitAssignExpr(expr: Assign): object {
     const value = this.evaluate(expr.value);
-    this.environment.assign(expr.name, value);
+    // this.environment.assign(expr.name, value);
+
+    const distance = this.locals.get(expr);
+    if (distance != null) {
+      this.environment.assignAt(distance, expr.name, value);
+    } else {
+      this.globals.assign(expr.name, value);
+    }
+
     return value;
   }
 
@@ -312,5 +322,18 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
     }
 
     return String(value);
+  }
+
+  resolve(expr: Expr, depth: number): void {
+    this.locals.set(expr, depth);
+  }
+
+  lookUpVariable(name: Token, expr: Expr): object {
+    const distance = this.locals.get(expr);
+    if (distance != null) {
+      return this.environment.getAt(distance, name);
+    } else {
+      return this.globals.get(name);
+    }
   }
 }

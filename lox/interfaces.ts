@@ -1,4 +1,5 @@
 import { Environment } from "./environment";
+import { Expr } from "./expr";
 import { Stmt } from "./stmt";
 
 export interface Interpreter {
@@ -10,4 +11,6 @@ export interface Interpreter {
   set error(error: boolean);
 
   executeBlock(statements: Stmt[], environment: Environment): void;
+
+  resolve(expr: Expr, depth: number): void;
 }
