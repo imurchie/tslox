@@ -1,7 +1,8 @@
 import { Environment } from "./environment";
 import { Interpreter } from "./interfaces";
-import { ReturnException } from "./interpreter";
+import { ReturnException, RuntimeError } from "./interpreter";
 import { Func } from "./stmt";
+import { Token } from "./token";
 
 export class LoxReturnValue {
   private value: any;
@@ -64,11 +65,23 @@ export class LoxFunction extends LoxCallable {
   }
 }
 
-class LoxInstance {
+export class LoxInstance {
   private klass: LoxClass;
+  private fields: Map<string, object> = new Map();
 
   constructor(klass: LoxClass) {
     this.klass = klass;
+  }
+
+  get(name: Token): object {
+    if (this.fields.has(name.lexeme)) {
+      const value = this.fields.get(name.lexeme);
+      if (value != undefined) {
+        return value;
+      }
+    }
+
+    throw new RuntimeError(name, `Undefined property '${name.lexeme}'`);
   }
 
   toString(): string {

@@ -30,7 +30,7 @@ A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ prog
 `term`         → `factor` ( ( "-" | "+" ) `factor` )* ;<br />
 `factor`       → `unary` ( ( "/" | "\*" ) `unary` )* ;<br />
 `unary`        → ( "!" | "-" ) `unary` | `call` ;<br />
-`call`         → `primary` ( "(" `arguments`? ")" )* ;<br />
+`call`         → `primary` ( "(" `arguments`? ")" | "." `IDENTIFIER` )* ;<br />
 `arguments`    → `expression` ( "," `expression` )* ;<br />
 `primary`      → `NUMBER` | `STRING` | "true" | "false" | "nil" | "(" `expression` ")" | `IDENTIFIER` ;<br />
 

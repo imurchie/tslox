@@ -4,6 +4,7 @@ import {
   Call,
   Expr,
   Visitor as ExprVisitor,
+  Get,
   Grouping,
   Literal,
   Logical,
@@ -218,6 +219,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     for (const arg of expr.args) {
       this.resolve(arg);
     }
+  }
+
+  visitGetExpr(expr: Get): void {
+    this.resolve(expr.object);
   }
 
   visitGroupingExpr(expr: Grouping): void {

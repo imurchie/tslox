@@ -23,6 +23,10 @@ const RULES = {
       ["Token", "paren"],
       ["Expr[]", "args"],
     ],
+    Get: [
+      ["Expr", "object"],
+      ["Token", "name"],
+    ],
     Grouping: [["Expr", "expression"]],
     Literal: [["any", "value"]],
     Logical: [

@@ -1,6 +1,6 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
-import { Assign, Binary, Call, Expr, Grouping, Literal, Logical, Unary, Variable } from "./expr";
+import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Unary, Variable } from "./expr";
 import { Block, Break, Class, Expression, Func, If, Print, Return, Stmt, Var, While } from "./stmt";
 import { report } from "./errors";
 import { MAX_ARITY } from "./constants";
@@ -355,6 +355,9 @@ export default class Parser {
     while (true) {
       if (this.match(TokenType.LEFT_PAREN)) {
         expr = this.finishCall(expr);
+      } else if (this.match(TokenType.IDENTIFIER)) {
+        const name = this.consume(TokenType.IDENTIFIER, "Expect property name after '.'");
+        expr = new Get(expr, name);
       } else {
         break;
       }

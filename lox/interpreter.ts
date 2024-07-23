@@ -9,6 +9,7 @@ import {
   Assign,
   Logical,
   Call,
+  Get,
 } from "./expr";
 import {
   Block,
@@ -27,7 +28,7 @@ import {
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 import { Environment } from "./environment";
-import { LoxCallable, LoxClass, LoxFunction, LoxReturnValue } from "./internal";
+import { LoxCallable, LoxClass, LoxFunction, LoxInstance, LoxReturnValue } from "./internal";
 import { ClockBuiltin } from "./builtins";
 import { Interpreter } from "./interfaces";
 
@@ -299,6 +300,15 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
     }
 
     return callee.call(this, args);
+  }
+
+  visitGetExpr(expr: Get): object {
+    const object = this.evaluate(expr.object);
+    if (object instanceof LoxInstance) {
+      return object.get(expr.name);
+    }
+
+    throw new RuntimeError(expr.name, "Only instances have properties");
   }
 
   evaluate(expr: Expr): object {
