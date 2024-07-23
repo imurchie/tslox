@@ -38,6 +38,10 @@ const RULES = {
   },
   Stmt: {
     Block: [["Stmt[]", "statements"]],
+    Class: [
+      ["Token", "name"],
+      ["Func[]", "methods"],
+    ],
     Break: [["Token", "token"]],
     Expression: [["Expr", "expression"]],
     Func: [

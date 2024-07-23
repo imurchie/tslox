@@ -44,7 +44,7 @@ export class LoxFunction extends LoxCallable {
   call(interpreter: Interpreter, args: object[]): LoxReturnValue {
     const environment = new Environment(this.closure);
     for (let i = 0; i < this.declaration.params.length; i++) {
-      environment.define(this.declaration.params[i].lexeme, args[i]);
+      environment.define(this.declaration.params[i], args[i]);
     }
 
     try {
@@ -61,5 +61,39 @@ export class LoxFunction extends LoxCallable {
 
   toString(): string {
     return `<fn ${this.declaration.name.lexeme} >`;
+  }
+}
+
+class LoxInstance {
+  private klass: LoxClass;
+
+  constructor(klass: LoxClass) {
+    this.klass = klass;
+  }
+
+  toString(): string {
+    return `<instance ${this.klass.name} >`;
+  }
+}
+
+export class LoxClass extends LoxCallable {
+  name: string;
+
+  constructor(name: string) {
+    super();
+    this.name = name;
+  }
+
+  call(interpreter: Interpreter, args: object[]): LoxReturnValue {
+    const instance = new LoxInstance(this);
+    return new LoxReturnValue(instance);
+  }
+
+  arity(): number {
+    return 0;
+  }
+
+  toString(): string {
+    return `<class ${this.name} >`;
   }
 }

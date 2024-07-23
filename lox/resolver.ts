@@ -11,7 +11,20 @@ import {
   Variable,
 } from "./expr";
 import { Interpreter } from "./interfaces";
-import { Block, Break, Expression, Func, If, Print, Return, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
+import {
+  Block,
+  Break,
+  Class,
+  Expression,
+  Func,
+  If,
+  Print,
+  Return,
+  Stmt,
+  Visitor as StmtVisitor,
+  Var,
+  While,
+} from "./stmt";
 import { Token } from "./token";
 import { report } from "./errors";
 import { TokenType } from "./token_type";
@@ -145,6 +158,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.declare(stmt.name);
     this.define(stmt.name);
     this.resolveFunction(stmt, FunctionType.FUNCTION);
+  }
+
+  visitClassStmt(stmt: Class): void {
+    this.declare(stmt.name);
+    this.define(stmt.name);
   }
 
   visitExpressionStmt(stmt: Expression): void {

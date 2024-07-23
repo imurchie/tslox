@@ -10,11 +10,24 @@ import {
   Logical,
   Call,
 } from "./expr";
-import { Block, Break, Expression, Func, If, Print, Return, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
+import {
+  Block,
+  Break,
+  Class,
+  Expression,
+  Func,
+  If,
+  Print,
+  Return,
+  Stmt,
+  Visitor as StmtVisitor,
+  Var,
+  While,
+} from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 import { Environment } from "./environment";
-import { LoxCallable, LoxFunction, LoxReturnValue } from "./internal";
+import { LoxCallable, LoxClass, LoxFunction, LoxReturnValue } from "./internal";
 import { ClockBuiltin } from "./builtins";
 import { Interpreter } from "./interfaces";
 
@@ -90,9 +103,17 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
     }
   }
 
+  visitClassStmt(stmt: Class): object {
+    this.environment.define(stmt.name, new Object(null));
+    const klass = new LoxClass(stmt.name.lexeme);
+    this.environment.assign(stmt.name, klass);
+
+    return new LoxReturnValue(undefined);
+  }
+
   visitFuncStmt(stmt: Func): object {
     const fn = new LoxFunction(stmt, this.environment);
-    this.environment.define(stmt.name.lexeme, fn);
+    this.environment.define(stmt.name, fn);
     return new LoxReturnValue(undefined);
   }
 
@@ -103,7 +124,7 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
       value = this.evaluate(stmt.initializer);
     }
 
-    this.environment.define(stmt.name.lexeme, value);
+    this.environment.define(stmt.name, value);
 
     return new LoxReturnValue(undefined);
   }

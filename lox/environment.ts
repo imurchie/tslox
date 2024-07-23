@@ -9,7 +9,10 @@ export class Environment {
     this.enclosing = enclosing;
   }
 
-  define(name: string, value: object): void {
+  define(name: Token | string, value: object): void {
+    if (name instanceof Token) {
+      name = name.lexeme;
+    }
     this.values[name] = value;
   }
 
