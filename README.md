@@ -4,35 +4,34 @@ A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ prog
 
 
 ## Grammar
-| name | rule |
-|------|------|
-| program | declaration* EOF |
-| declaration | fnDecl \| varDecl \| statement |
-| fnDecl | "fun" function |
-| function | IDENTIFIER "(" parameters? ")" block |
-| parameters | IDENTIFIER ( "," IDENTIFIER )* |
-| varDecl | "var" IDENTIFIER ( "=" expression )? ";" |
-| statement | exprStmt \| forStmt \| ifStmt \| printStmt \| returnStmt \| whileStmt \| block \| breakStmt |
-| breakStmt | "break" ";" |
-| forStmt | "for" "(" (varDecl \| exprStmt \| ";" ) expression? ";" expression? ")" statement |
-| ifStmt | "if" "(" expression ")" statement ( "else" statement )? |
-| whileStmt | "while" "(" expression ")" statement;
-| block | "{" declaration "}" |
-| exprStmt | expression ";" |
-| printStmt | "print" expression ";" |
-| returnStmt | "return" expression? ";" |
-| expression | assignment |
-| assignment | IDENTIFIER "=" assignment \| logic_or |
-| logic_or | logic_and ( "or" logic_and )* |
-| logic_and | equality ( "and" equality )* |
-| equality | comparison ( ( "!=" \| "==" ) comparison)* |
-| comparison | term ( ( ">" \| ">=" \| "<" \| "<=" ) term)* |
-| term | factor ( ( "-" \| "+" ) factor)* |
-| factor | unary ( ( "/" \| "\*" ) unary)* |
-| unary | ( "!" \| "-" ) unary | call |
-| call | primary ( "(" arguments? ")" )* |
-| arguments | expression ( "," expression )* |
-| primary | NUMBER \| STRING \| "true" \| "false" \| "nil" \| "(" expression ")" \| IDENTIFIER |
+
+`program`      → `declaration`* `EOF` ;<br />
+`declaration`  → `fnDecl` | `varDecl` | `statement` ;<br />
+`fnDecl`       → "fun" `function` ;<br />
+`function`     → `IDENTIFIER` "(" `parameters?` ")" `block` ;<br />
+`parameters`   → `IDENTIFIER` ( "," `IDENTIFIER` )* ;<br />
+`varDecl`      → "var" `IDENTIFIER` ( "=" `expression` )? ";" ;<br />
+`statement`    → `exprStmt` | `forStmt` | `ifStmt` | `printStmt` | `returnStmt` | `whileStmt` | `block` | `breakStmt` ;<br />
+`breakStmt`    → "break" ";" ;<br />
+`forStmt`      → "for" `"("` ( `varDecl` | `exprStmt` | ";" ) `expression`? ";" `expression`? ")" `statement` ;<br />
+`ifStmt`       → "if" "(" `expression` ")" `statement` ( "else" `statement` )? ;<br />
+`whileStmt`    → "while" "(" `expression` ")" `statement` ;<br />
+`block`        → "{" `declaration` "}" ;<br />
+`exprStmt`     → `expression` ";" ;<br />
+`printStmt`    → "print" `expression` ";" ;<br />
+`returnStmt`   → "return" `expression`? ";" ;<br />
+`expression`   → `assignment` ;<br />
+`assignment`   → `IDENTIFIER` "=" `assignment` | `logic_or` ;<br />
+`logic_or`     → `logic_and` ( "or" `logic_and` )* ;<br />
+`logic_and`    → `equality` ( "and" `equality` )* ;<br />
+`equality`     → `comparison` ( ( "!=" | "==" ) `comparison` )* ;<br />
+`comparison`   → `term` ( ( ">" | ">=" | "<" | "<=" ) `term` )* ;<br />
+`term`         → `factor` ( ( "-" | "+" ) `factor` )* ;<br />
+`factor`       → `unary` ( ( "/" | "\*" ) `unary` )* ;<br />
+`unary`        → ( "!" | "-" ) `unary` | `call` ;<br />
+`call`         → `primary` ( "(" `arguments`? ")" )* ;<br />
+`arguments`    → `expression` ( "," `expression` )* ;<br />
+`primary`      → `NUMBER` | `STRING` | "true" | "false" | "nil" | "(" `expression` ")" | `IDENTIFIER` ;<br />
 
 
 ### AST generation
