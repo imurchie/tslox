@@ -81,6 +81,11 @@ export class LoxInstance {
       }
     }
 
+    const method = this.klass.findMethod(name.lexeme);
+    if (method) {
+      return method;
+    }
+
     throw new RuntimeError(name, `Undefined property '${name.lexeme}'`);
   }
 
@@ -95,10 +100,21 @@ export class LoxInstance {
 
 export class LoxClass extends LoxCallable {
   name: string;
+  methods: Map<string, LoxFunction>;
 
-  constructor(name: string) {
+  constructor(name: string, methods: Map<string, LoxFunction>) {
     super();
     this.name = name;
+    this.methods = methods;
+  }
+
+  findMethod(name: string): LoxFunction | null {
+    const method = this.methods.get(name);
+    if (method == undefined) {
+      return null;
+    }
+
+    return method;
   }
 
   call(interpreter: Interpreter, args: object[]): LoxReturnValue {

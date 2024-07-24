@@ -64,6 +64,7 @@ class ScopeStack {
 const FunctionType = {
   NONE: 0,
   FUNCTION: 1,
+  METHOD: 2,
 };
 
 const LoopType = {
@@ -165,6 +166,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitClassStmt(stmt: Class): void {
     this.declare(stmt.name);
     this.define(stmt.name);
+
+    for (const method of stmt.methods) {
+      this.resolveFunction(method, FunctionType.METHOD);
+    }
   }
 
   visitExpressionStmt(stmt: Expression): void {

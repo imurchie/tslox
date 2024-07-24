@@ -107,7 +107,14 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
 
   visitClassStmt(stmt: Class): object {
     this.environment.define(stmt.name, new Object(null));
-    const klass = new LoxClass(stmt.name.lexeme);
+
+    let methods: Map<string, LoxFunction> = new Map();
+    for (const method of stmt.methods) {
+      const func = new LoxFunction(method, this.environment);
+      methods.set(method.name.lexeme, func);
+    }
+
+    const klass = new LoxClass(stmt.name.lexeme, methods);
     this.environment.assign(stmt.name, klass);
 
     return new LoxReturnValue(undefined);

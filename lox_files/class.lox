@@ -15,3 +15,6 @@ print b;
 
 b.something = "hello";
 print b.something;
+
+b.cook();
+b.serve("Isaac");
