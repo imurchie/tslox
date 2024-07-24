@@ -10,6 +10,7 @@ import {
   Logical,
   Call,
   Get,
+  Set,
 } from "./expr";
 import {
   Block,
@@ -303,12 +304,25 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
   }
 
   visitGetExpr(expr: Get): object {
-    const object = this.evaluate(expr.object);
+    const object = this.evaluate(expr.object).valueOf();
+
     if (object instanceof LoxInstance) {
       return object.get(expr.name);
     }
 
     throw new RuntimeError(expr.name, "Only instances have properties");
+  }
+
+  visitSetExpr(expr: Set): object {
+    const object = this.evaluate(expr.object).valueOf();
+
+    if (!(object instanceof LoxInstance)) {
+      throw new RuntimeError(expr.name, "Only instances have fields");
+    }
+
+    const value = this.evaluate(expr.value);
+    object.set(expr.name, value);
+    return value;
   }
 
   evaluate(expr: Expr): object {

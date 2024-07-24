@@ -34,6 +34,11 @@ const RULES = {
       ["Token", "operator"],
       ["Expr", "right"],
     ],
+    Set: [
+      ["Expr", "object"],
+      ["Token", "name"],
+      ["Expr", "value"],
+    ],
     Unary: [
       ["Token", "operator"],
       ["Expr", "right"],

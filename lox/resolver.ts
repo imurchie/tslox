@@ -8,6 +8,7 @@ import {
   Grouping,
   Literal,
   Logical,
+  Set,
   Unary,
   Variable,
 } from "./expr";
@@ -236,6 +237,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitLogicalExpr(expr: Logical): void {
     this.resolve(expr.left);
     this.resolve(expr.right);
+  }
+
+  visitSetExpr(expr: Set): void {
+    this.resolve(expr.value);
+    this.resolve(expr.object);
   }
 
   visitUnaryExpr(expr: Unary): void {

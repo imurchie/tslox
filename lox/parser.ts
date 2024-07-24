@@ -1,6 +1,6 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
-import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Unary, Variable } from "./expr";
+import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Set, Unary, Variable } from "./expr";
 import { Block, Break, Class, Expression, Func, If, Print, Return, Stmt, Var, While } from "./stmt";
 import { report } from "./errors";
 import { MAX_ARITY } from "./constants";
@@ -250,13 +250,18 @@ export default class Parser {
   private assignment(): Expr {
     const expr = this.or();
 
+    console.log("trying assignment", expr);
     if (this.match(TokenType.EQUAL)) {
+      console.log("matfches equal");
       const equals = this.previous();
       const value = this.assignment();
 
       if (expr instanceof Variable) {
         const name = expr.name;
         return new Assign(name, value);
+      } else if (expr instanceof Get) {
+        console.log("here");
+        return new Set(expr.object, expr.name, value);
       }
 
       // report error, but do not throw, since this is not
@@ -355,7 +360,7 @@ export default class Parser {
     while (true) {
       if (this.match(TokenType.LEFT_PAREN)) {
         expr = this.finishCall(expr);
-      } else if (this.match(TokenType.IDENTIFIER)) {
+      } else if (this.match(TokenType.DOT)) {
         const name = this.consume(TokenType.IDENTIFIER, "Expect property name after '.'");
         expr = new Get(expr, name);
       } else {

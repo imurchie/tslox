@@ -22,7 +22,7 @@ A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ prog
 `printStmt`    → "print" `expression` ";" ;<br />
 `returnStmt`   → "return" `expression`? ";" ;<br />
 `expression`   → `assignment` ;<br />
-`assignment`   → `IDENTIFIER` "=" `assignment` | `logic_or` ;<br />
+`assignment`   → ( `call` ".")? `IDENTIFIER` "=" `assignment` | `logic_or` ;<br />
 `logic_or`     → `logic_and` ( "or" `logic_and` )* ;<br />
 `logic_and`    → `equality` ( "and" `equality` )* ;<br />
 `equality`     → `comparison` ( ( "!=" | "==" ) `comparison` )* ;<br />

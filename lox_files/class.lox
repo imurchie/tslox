@@ -12,3 +12,6 @@ print Breakfast;
 
 var b = Breakfast();
 print b;
+
+b.something = "hello";
+print b.something;
