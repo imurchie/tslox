@@ -11,6 +11,7 @@ import {
   Call,
   Get,
   Set,
+  This,
 } from "./expr";
 import {
   Block,
@@ -198,6 +199,10 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
 
   visitGroupingExpr(expr: Grouping): object {
     return this.evaluate(expr.expression);
+  }
+
+  visitThisExpr(expr: This): object {
+    return this.lookUpVariable(expr.keyword, expr);
   }
 
   visitUnaryExpr(expr: Unary): object {

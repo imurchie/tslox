@@ -39,6 +39,7 @@ const RULES = {
       ["Token", "name"],
       ["Expr", "value"],
     ],
+    This: [["Token", "keyword"]],
     Unary: [
       ["Token", "operator"],
       ["Expr", "right"],
@@ -51,7 +52,7 @@ const RULES = {
       ["Token", "name"],
       ["Func[]", "methods"],
     ],
-    Break: [["Token", "token"]],
+    Break: [["Token", "keyword"]],
     Expression: [["Expr", "expression"]],
     Func: [
       ["Token", "name"],

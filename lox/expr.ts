@@ -14,6 +14,7 @@ export interface Visitor<T> {
   visitLiteralExpr(expr: Literal): T;
   visitLogicalExpr(expr: Logical): T;
   visitSetExpr(expr: Set): T;
+  visitThisExpr(expr: This): T;
   visitUnaryExpr(expr: Unary): T;
   visitVariableExpr(expr: Variable): T;
 }
@@ -164,6 +165,22 @@ export class Set implements Expr {
 
   toString(): string {
     return `Set { object: ${this.object} name: ${this.name} value: ${this.value} }`;
+  }
+}
+
+export class This implements Expr {
+  keyword: Token;
+
+  constructor(keyword: Token) {
+    this.keyword = keyword;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitThisExpr(this);
+  }
+
+  toString(): string {
+    return `This { keyword: ${this.keyword} }`;
   }
 }
 

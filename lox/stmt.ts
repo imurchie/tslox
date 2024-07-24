@@ -54,10 +54,10 @@ export class Class implements Stmt {
 }
 
 export class Break implements Stmt {
-  token: Token;
+  keyword: Token;
 
-  constructor(token: Token) {
-    this.token = token;
+  constructor(keyword: Token) {
+    this.keyword = keyword;
   }
 
   accept<T>(visitor: Visitor<T>): T {
@@ -65,7 +65,7 @@ export class Break implements Stmt {
   }
 
   toString(): string {
-    return `Break { token: ${this.token} }`;
+    return `Break { keyword: ${this.keyword} }`;
   }
 }
 

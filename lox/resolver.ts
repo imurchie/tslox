@@ -9,6 +9,7 @@ import {
   Literal,
   Logical,
   Set,
+  This,
   Unary,
   Variable,
 } from "./expr";
@@ -61,6 +62,11 @@ class ScopeStack {
   }
 }
 
+const ClassType = {
+  NONE: 0,
+  CLASS: 1,
+};
+
 const FunctionType = {
   NONE: 0,
   FUNCTION: 1,
@@ -77,6 +83,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private scopes = new ScopeStack();
   private currentFunction = FunctionType.NONE;
   private currentLoop = LoopType.NONE;
+  private currentClass = ClassType.NONE;
   private hasError = false;
 
   constructor(interpreter: Interpreter) {
@@ -164,12 +171,22 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   }
 
   visitClassStmt(stmt: Class): void {
+    const enclosingClass = this.currentClass;
+    this.currentClass = ClassType.CLASS;
+
     this.declare(stmt.name);
     this.define(stmt.name);
+
+    // set up for `this` being in scope in methods
+    this.beginScope();
+    this.scopes?.current?.set(TokenType.THIS, true);
 
     for (const method of stmt.methods) {
       this.resolveFunction(method, FunctionType.METHOD);
     }
+
+    this.currentClass = enclosingClass;
+    this.endScope();
   }
 
   visitExpressionStmt(stmt: Expression): void {
@@ -214,7 +231,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
 
   visitBreakStmt(stmt: Break): void {
     if (this.currentLoop == LoopType.NONE) {
-      this.reportError(stmt.token, `Cannot break outside of loop`);
+      this.reportError(stmt.keyword, `Cannot break outside of loop`);
     }
     // nothing to resolve
   }
@@ -247,6 +264,14 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitSetExpr(expr: Set): void {
     this.resolve(expr.value);
     this.resolve(expr.object);
+  }
+
+  visitThisExpr(expr: This): void {
+    if (this.currentClass === ClassType.NONE) {
+      this.reportError(expr.keyword, "Cannot use 'this' outside of a class");
+    }
+
+    this.resolveLocal(expr, expr.keyword);
   }
 
   visitUnaryExpr(expr: Unary): void {

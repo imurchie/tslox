@@ -6,6 +6,10 @@ class Breakfast {
     serve(who) {
         print "Enjoy your breakfast, " + who + ".";
     }
+
+    print_something() {
+        print this.something;
+    }
 }
 
 print Breakfast;
@@ -18,3 +22,5 @@ print b.something;
 
 b.cook();
 b.serve("Isaac");
+
+b.print_something();

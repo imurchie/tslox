@@ -3,6 +3,7 @@ import { Interpreter } from "./interfaces";
 import { ReturnException, RuntimeError } from "./interpreter";
 import { Func } from "./stmt";
 import { Token } from "./token";
+import { TokenType } from "./token_type";
 
 export class LoxReturnValue {
   private value: any;
@@ -60,6 +61,12 @@ export class LoxFunction extends LoxCallable {
     return new LoxReturnValue(undefined);
   }
 
+  bind(instance: LoxInstance): LoxFunction {
+    const environment = new Environment(this.closure);
+    environment.define(TokenType.THIS, instance);
+    return new LoxFunction(this.declaration, environment);
+  }
+
   toString(): string {
     return `<fn ${this.declaration.name.lexeme} >`;
   }
@@ -83,7 +90,7 @@ export class LoxInstance {
 
     const method = this.klass.findMethod(name.lexeme);
     if (method) {
-      return method;
+      return method.bind(this);
     }
 
     throw new RuntimeError(name, `Undefined property '${name.lexeme}'`);
@@ -108,11 +115,8 @@ export class LoxClass extends LoxCallable {
     this.methods = methods;
   }
 
-  findMethod(name: string): LoxFunction | null {
+  findMethod(name: string): LoxFunction | undefined {
     const method = this.methods.get(name);
-    if (method == undefined) {
-      return null;
-    }
 
     return method;
   }
