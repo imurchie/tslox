@@ -31,6 +31,7 @@ import {
 import { Token } from "./token";
 import { report } from "./errors";
 import { TokenType } from "./token_type";
+import { CLASS_INIT_METHOD } from "./constants";
 
 class ResolverError extends Error {}
 
@@ -71,6 +72,7 @@ const FunctionType = {
   NONE: 0,
   FUNCTION: 1,
   METHOD: 2,
+  INITIALIZER: 3,
 };
 
 const LoopType = {
@@ -182,7 +184,11 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.scopes?.current?.set(TokenType.THIS, true);
 
     for (const method of stmt.methods) {
-      this.resolveFunction(method, FunctionType.METHOD);
+      let type = FunctionType.METHOD;
+      if (method.name.lexeme === CLASS_INIT_METHOD) {
+        type = FunctionType.INITIALIZER;
+      }
+      this.resolveFunction(method, type);
     }
 
     this.currentClass = enclosingClass;
@@ -209,6 +215,17 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     if (this.currentFunction == FunctionType.NONE) {
       this.reportError(stmt.keyword, `Cannot return from top-level code`);
     }
+
+    // ensure that there is no value being passed back from an instance initializer
+    if (
+      this.currentFunction == FunctionType.INITIALIZER &&
+      stmt.value !== undefined &&
+      stmt.value instanceof Literal &&
+      stmt.value.value !== null
+    ) {
+      this.reportError(stmt.keyword, "Cannot return a value from an initializer");
+    }
+
     if (stmt.value != null) {
       this.resolve(stmt.value);
     }

@@ -33,6 +33,7 @@ import { Environment } from "./environment";
 import { LoxCallable, LoxClass, LoxFunction, LoxInstance, LoxReturnValue } from "./internal";
 import { ClockBuiltin } from "./builtins";
 import { Interpreter } from "./interfaces";
+import { CLASS_INIT_METHOD } from "./constants";
 
 export class RuntimeError extends Error {
   private _token: Token;
@@ -111,7 +112,7 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
 
     let methods: Map<string, LoxFunction> = new Map();
     for (const method of stmt.methods) {
-      const func = new LoxFunction(method, this.environment);
+      const func = new LoxFunction(method, this.environment, method.name.lexeme === CLASS_INIT_METHOD);
       methods.set(method.name.lexeme, func);
     }
 

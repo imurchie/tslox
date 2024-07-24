@@ -1,3 +1,4 @@
+import { CLASS_INIT_METHOD } from "./constants";
 import { Environment } from "./environment";
 import { Interpreter } from "./interfaces";
 import { ReturnException, RuntimeError } from "./interpreter";
@@ -32,11 +33,13 @@ export class LoxCallable {
 export class LoxFunction extends LoxCallable {
   private declaration: Func;
   private closure: Environment;
+  private isInitializer: boolean;
 
-  constructor(declaration: Func, closure: Environment) {
+  constructor(declaration: Func, closure: Environment, isInitializer: boolean = false) {
     super();
     this.declaration = declaration;
     this.closure = closure;
+    this.isInitializer = isInitializer;
   }
 
   arity(): number {
@@ -53,18 +56,27 @@ export class LoxFunction extends LoxCallable {
       interpreter.executeBlock(this.declaration.body, environment);
     } catch (ex) {
       if (ex instanceof ReturnException) {
-        const value = ex.value == null ? undefined : ex.value.valueOf();
+        let value = ex.value == null ? undefined : ex.value.valueOf();
+        if (this.isInitializer) {
+          // allow a return in an object initializer
+          value = this.closure.getAt(0, CLASS_INIT_METHOD);
+        }
         return new LoxReturnValue(value);
       }
       throw ex;
     }
-    return new LoxReturnValue(undefined);
+
+    let returnValue = undefined;
+    if (this.isInitializer) {
+      returnValue = this.closure.getAt(0, CLASS_INIT_METHOD);
+    }
+    return new LoxReturnValue(returnValue);
   }
 
   bind(instance: LoxInstance): LoxFunction {
     const environment = new Environment(this.closure);
     environment.define(TokenType.THIS, instance);
-    return new LoxFunction(this.declaration, environment);
+    return new LoxFunction(this.declaration, environment, this.isInitializer);
   }
 
   toString(): string {
@@ -123,11 +135,23 @@ export class LoxClass extends LoxCallable {
 
   call(interpreter: Interpreter, args: object[]): LoxReturnValue {
     const instance = new LoxInstance(this);
+
+    // initialize the instance
+    const initializer = this.findMethod(CLASS_INIT_METHOD);
+    if (initializer) {
+      initializer.bind(instance).call(interpreter, args);
+    }
+
     return new LoxReturnValue(instance);
   }
 
   arity(): number {
-    return 0;
+    const initializer = this.findMethod(CLASS_INIT_METHOD);
+    if (!initializer) {
+      return 0;
+    }
+
+    return initializer.arity();
   }
 
   toString(): string {

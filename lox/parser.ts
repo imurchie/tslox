@@ -250,9 +250,7 @@ export default class Parser {
   private assignment(): Expr {
     const expr = this.or();
 
-    console.log("trying assignment", expr);
     if (this.match(TokenType.EQUAL)) {
-      console.log("matfches equal");
       const equals = this.previous();
       const value = this.assignment();
 
@@ -260,7 +258,6 @@ export default class Parser {
         const name = expr.name;
         return new Assign(name, value);
       } else if (expr instanceof Get) {
-        console.log("here");
         return new Set(expr.object, expr.name, value);
       }
 
