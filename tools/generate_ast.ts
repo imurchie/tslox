@@ -50,6 +50,7 @@ const RULES = {
     Block: [["Stmt[]", "statements"]],
     Class: [
       ["Token", "name"],
+      ["Variable | null", "superclass"],
       ["Func[]", "methods"],
     ],
     Break: [["Token", "keyword"]],
@@ -148,7 +149,7 @@ async function writeAst(dirname: string, basename: string, rules: { [key: string
   let source = "/* This is a generated file. Do not manually edit! */\n\n\n";
   source += `import { Token } from "${dirDepth}/lox/token"; // eslint-disable-line @typescript-eslint/no-unused-vars\n`;
   if (basename != "Expr") {
-    source += `import { Expr } from "${dirDepth}/lox/expr";\n`;
+    source += `import { Expr, Variable } from "${dirDepth}/lox/expr";\n`;
   }
   source += "\n\n";
 

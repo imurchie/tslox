@@ -66,6 +66,14 @@ export default class Parser {
 
   private classDeclaration(): Class {
     const name = this.consume(TokenType.IDENTIFIER, "Expect class name");
+
+    let superclass: Variable | null = null;
+    if (this.match(TokenType.LESS)) {
+      this.consume(TokenType.IDENTIFIER, "Expect superclass name after '<'");
+      superclass = new Variable(this.previous());
+    }
+
+    // start getting the body
     this.consume(TokenType.LEFT_BRACE, `Expect '{' before class body`);
 
     let methods: Func[] = [];
@@ -75,7 +83,7 @@ export default class Parser {
 
     this.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body");
 
-    return new Class(name, methods);
+    return new Class(name, superclass, methods);
   }
 
   private fnDeclaration(kind: string): Func {
