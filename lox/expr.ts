@@ -9,9 +9,12 @@ export interface Visitor<T> {
   visitAssignExpr(expr: Assign): T;
   visitBinaryExpr(expr: Binary): T;
   visitCallExpr(expr: Call): T;
+  visitGetExpr(expr: Get): T;
   visitGroupingExpr(expr: Grouping): T;
   visitLiteralExpr(expr: Literal): T;
   visitLogicalExpr(expr: Logical): T;
+  visitSetExpr(expr: Set): T;
+  visitThisExpr(expr: This): T;
   visitUnaryExpr(expr: Unary): T;
   visitVariableExpr(expr: Variable): T;
 }
@@ -74,6 +77,24 @@ export class Call implements Expr {
   }
 }
 
+export class Get implements Expr {
+  object: Expr;
+  name: Token;
+
+  constructor(object: Expr, name: Token) {
+    this.object = object;
+    this.name = name;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitGetExpr(this);
+  }
+
+  toString(): string {
+    return `Get { object: ${this.object} name: ${this.name} }`;
+  }
+}
+
 export class Grouping implements Expr {
   expression: Expr;
 
@@ -124,6 +145,42 @@ export class Logical implements Expr {
 
   toString(): string {
     return `Logical { left: ${this.left} operator: ${this.operator} right: ${this.right} }`;
+  }
+}
+
+export class Set implements Expr {
+  object: Expr;
+  name: Token;
+  value: Expr;
+
+  constructor(object: Expr, name: Token, value: Expr) {
+    this.object = object;
+    this.name = name;
+    this.value = value;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitSetExpr(this);
+  }
+
+  toString(): string {
+    return `Set { object: ${this.object} name: ${this.name} value: ${this.value} }`;
+  }
+}
+
+export class This implements Expr {
+  keyword: Token;
+
+  constructor(keyword: Token) {
+    this.keyword = keyword;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitThisExpr(this);
+  }
+
+  toString(): string {
+    return `This { keyword: ${this.keyword} }`;
   }
 }
 

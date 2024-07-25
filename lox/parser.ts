@@ -1,7 +1,7 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
-import { Assign, Binary, Call, Expr, Grouping, Literal, Logical, Unary, Variable } from "./expr";
-import { Block, Break, Expression, Func, If, Print, Return, Stmt, Var, While } from "./stmt";
+import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Set, This, Unary, Variable } from "./expr";
+import { Block, Break, Class, Expression, Func, If, Print, Return, Stmt, Var, While } from "./stmt";
 import { report } from "./errors";
 import { MAX_ARITY } from "./constants";
 
@@ -47,6 +47,9 @@ export default class Parser {
 
   private declaration(): Stmt | null {
     try {
+      if (this.match(TokenType.CLASS)) {
+        return this.classDeclaration();
+      }
       if (this.match(TokenType.FUN)) {
         return this.fnDeclaration("function");
       }
@@ -59,6 +62,20 @@ export default class Parser {
       this.synchronize();
       return null;
     }
+  }
+
+  private classDeclaration(): Class {
+    const name = this.consume(TokenType.IDENTIFIER, "Expect class name");
+    this.consume(TokenType.LEFT_BRACE, `Expect '{' before class body`);
+
+    let methods: Func[] = [];
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+      methods.push(this.fnDeclaration("method"));
+    }
+
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after class body");
+
+    return new Class(name, methods);
   }
 
   private fnDeclaration(kind: string): Func {
@@ -240,6 +257,8 @@ export default class Parser {
       if (expr instanceof Variable) {
         const name = expr.name;
         return new Assign(name, value);
+      } else if (expr instanceof Get) {
+        return new Set(expr.object, expr.name, value);
       }
 
       // report error, but do not throw, since this is not
@@ -338,6 +357,9 @@ export default class Parser {
     while (true) {
       if (this.match(TokenType.LEFT_PAREN)) {
         expr = this.finishCall(expr);
+      } else if (this.match(TokenType.DOT)) {
+        const name = this.consume(TokenType.IDENTIFIER, "Expect property name after '.'");
+        expr = new Get(expr, name);
       } else {
         break;
       }
@@ -369,6 +391,10 @@ export default class Parser {
 
     if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new Literal(this.previous().literal);
+    }
+
+    if (this.match(TokenType.THIS)) {
+      return new This(this.previous());
     }
 
     if (this.match(TokenType.IDENTIFIER)) {

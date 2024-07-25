@@ -23,6 +23,10 @@ const RULES = {
       ["Token", "paren"],
       ["Expr[]", "args"],
     ],
+    Get: [
+      ["Expr", "object"],
+      ["Token", "name"],
+    ],
     Grouping: [["Expr", "expression"]],
     Literal: [["any", "value"]],
     Logical: [
@@ -30,6 +34,12 @@ const RULES = {
       ["Token", "operator"],
       ["Expr", "right"],
     ],
+    Set: [
+      ["Expr", "object"],
+      ["Token", "name"],
+      ["Expr", "value"],
+    ],
+    This: [["Token", "keyword"]],
     Unary: [
       ["Token", "operator"],
       ["Expr", "right"],
@@ -38,7 +48,11 @@ const RULES = {
   },
   Stmt: {
     Block: [["Stmt[]", "statements"]],
-    Break: [["Token", "token"]],
+    Class: [
+      ["Token", "name"],
+      ["Func[]", "methods"],
+    ],
+    Break: [["Token", "keyword"]],
     Expression: [["Expr", "expression"]],
     Func: [
       ["Token", "name"],

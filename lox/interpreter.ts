@@ -9,14 +9,31 @@ import {
   Assign,
   Logical,
   Call,
+  Get,
+  Set,
+  This,
 } from "./expr";
-import { Block, Break, Expression, Func, If, Print, Return, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
+import {
+  Block,
+  Break,
+  Class,
+  Expression,
+  Func,
+  If,
+  Print,
+  Return,
+  Stmt,
+  Visitor as StmtVisitor,
+  Var,
+  While,
+} from "./stmt";
 import { TokenType } from "./token_type";
 import { Token } from "./token";
 import { Environment } from "./environment";
-import { LoxCallable, LoxFunction, LoxReturnValue } from "./internal";
+import { LoxCallable, LoxClass, LoxFunction, LoxInstance, LoxReturnValue } from "./internal";
 import { ClockBuiltin } from "./builtins";
 import { Interpreter } from "./interfaces";
+import { CLASS_INIT_METHOD } from "./constants";
 
 export class RuntimeError extends Error {
   private _token: Token;
@@ -90,9 +107,24 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
     }
   }
 
+  visitClassStmt(stmt: Class): object {
+    this.environment.define(stmt.name, new Object(null));
+
+    let methods: Map<string, LoxFunction> = new Map();
+    for (const method of stmt.methods) {
+      const func = new LoxFunction(method, this.environment, method.name.lexeme === CLASS_INIT_METHOD);
+      methods.set(method.name.lexeme, func);
+    }
+
+    const klass = new LoxClass(stmt.name.lexeme, methods);
+    this.environment.assign(stmt.name, klass);
+
+    return new LoxReturnValue(undefined);
+  }
+
   visitFuncStmt(stmt: Func): object {
     const fn = new LoxFunction(stmt, this.environment);
-    this.environment.define(stmt.name.lexeme, fn);
+    this.environment.define(stmt.name, fn);
     return new LoxReturnValue(undefined);
   }
 
@@ -103,7 +135,7 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
       value = this.evaluate(stmt.initializer);
     }
 
-    this.environment.define(stmt.name.lexeme, value);
+    this.environment.define(stmt.name, value);
 
     return new LoxReturnValue(undefined);
   }
@@ -168,6 +200,10 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
 
   visitGroupingExpr(expr: Grouping): object {
     return this.evaluate(expr.expression);
+  }
+
+  visitThisExpr(expr: This): object {
+    return this.lookUpVariable(expr.keyword, expr);
   }
 
   visitUnaryExpr(expr: Unary): object {
@@ -278,6 +314,28 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
     }
 
     return callee.call(this, args);
+  }
+
+  visitGetExpr(expr: Get): object {
+    const object = this.evaluate(expr.object).valueOf();
+
+    if (object instanceof LoxInstance) {
+      return object.get(expr.name);
+    }
+
+    throw new RuntimeError(expr.name, "Only instances have properties");
+  }
+
+  visitSetExpr(expr: Set): object {
+    const object = this.evaluate(expr.object).valueOf();
+
+    if (!(object instanceof LoxInstance)) {
+      throw new RuntimeError(expr.name, "Only instances have fields");
+    }
+
+    const value = this.evaluate(expr.value);
+    object.set(expr.name, value);
+    return value;
   }
 
   evaluate(expr: Expr): object {

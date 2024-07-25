@@ -9,7 +9,10 @@ export class Environment {
     this.enclosing = enclosing;
   }
 
-  define(name: string, value: object): void {
+  define(name: Token | string, value: object): void {
+    if (name instanceof Token) {
+      name = name.lexeme;
+    }
     this.values[name] = value;
   }
 
@@ -40,8 +43,11 @@ export class Environment {
     throw new RuntimeError(name, `Getting undefined variable '${name.lexeme}'`);
   }
 
-  getAt(distance: number, name: Token): object {
-    return this.ancestor(distance).values[name.lexeme];
+  getAt(distance: number, name: Token | string): object {
+    if (name instanceof Token) {
+      name = name.lexeme;
+    }
+    return this.ancestor(distance).values[name];
   }
 
   assign(name: Token, value: object): void {

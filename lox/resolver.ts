@@ -4,17 +4,34 @@ import {
   Call,
   Expr,
   Visitor as ExprVisitor,
+  Get,
   Grouping,
   Literal,
   Logical,
+  Set,
+  This,
   Unary,
   Variable,
 } from "./expr";
 import { Interpreter } from "./interfaces";
-import { Block, Break, Expression, Func, If, Print, Return, Stmt, Visitor as StmtVisitor, Var, While } from "./stmt";
+import {
+  Block,
+  Break,
+  Class,
+  Expression,
+  Func,
+  If,
+  Print,
+  Return,
+  Stmt,
+  Visitor as StmtVisitor,
+  Var,
+  While,
+} from "./stmt";
 import { Token } from "./token";
 import { report } from "./errors";
 import { TokenType } from "./token_type";
+import { CLASS_INIT_METHOD } from "./constants";
 
 class ResolverError extends Error {}
 
@@ -46,9 +63,16 @@ class ScopeStack {
   }
 }
 
+const ClassType = {
+  NONE: 0,
+  CLASS: 1,
+};
+
 const FunctionType = {
   NONE: 0,
   FUNCTION: 1,
+  METHOD: 2,
+  INITIALIZER: 3,
 };
 
 const LoopType = {
@@ -61,6 +85,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   private scopes = new ScopeStack();
   private currentFunction = FunctionType.NONE;
   private currentLoop = LoopType.NONE;
+  private currentClass = ClassType.NONE;
   private hasError = false;
 
   constructor(interpreter: Interpreter) {
@@ -147,6 +172,29 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.resolveFunction(stmt, FunctionType.FUNCTION);
   }
 
+  visitClassStmt(stmt: Class): void {
+    const enclosingClass = this.currentClass;
+    this.currentClass = ClassType.CLASS;
+
+    this.declare(stmt.name);
+    this.define(stmt.name);
+
+    // set up for `this` being in scope in methods
+    this.beginScope();
+    this.scopes?.current?.set(TokenType.THIS, true);
+
+    for (const method of stmt.methods) {
+      let type = FunctionType.METHOD;
+      if (method.name.lexeme === CLASS_INIT_METHOD) {
+        type = FunctionType.INITIALIZER;
+      }
+      this.resolveFunction(method, type);
+    }
+
+    this.currentClass = enclosingClass;
+    this.endScope();
+  }
+
   visitExpressionStmt(stmt: Expression): void {
     this.resolve(stmt.expression);
   }
@@ -167,6 +215,17 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     if (this.currentFunction == FunctionType.NONE) {
       this.reportError(stmt.keyword, `Cannot return from top-level code`);
     }
+
+    // ensure that there is no value being passed back from an instance initializer
+    if (
+      this.currentFunction == FunctionType.INITIALIZER &&
+      stmt.value !== undefined &&
+      stmt.value instanceof Literal &&
+      stmt.value.value !== null
+    ) {
+      this.reportError(stmt.keyword, "Cannot return a value from an initializer");
+    }
+
     if (stmt.value != null) {
       this.resolve(stmt.value);
     }
@@ -189,7 +248,7 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
 
   visitBreakStmt(stmt: Break): void {
     if (this.currentLoop == LoopType.NONE) {
-      this.reportError(stmt.token, `Cannot break outside of loop`);
+      this.reportError(stmt.keyword, `Cannot break outside of loop`);
     }
     // nothing to resolve
   }
@@ -200,6 +259,10 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     for (const arg of expr.args) {
       this.resolve(arg);
     }
+  }
+
+  visitGetExpr(expr: Get): void {
+    this.resolve(expr.object);
   }
 
   visitGroupingExpr(expr: Grouping): void {
@@ -213,6 +276,19 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitLogicalExpr(expr: Logical): void {
     this.resolve(expr.left);
     this.resolve(expr.right);
+  }
+
+  visitSetExpr(expr: Set): void {
+    this.resolve(expr.value);
+    this.resolve(expr.object);
+  }
+
+  visitThisExpr(expr: This): void {
+    if (this.currentClass === ClassType.NONE) {
+      this.reportError(expr.keyword, "Cannot use 'this' outside of a class");
+    }
+
+    this.resolveLocal(expr, expr.keyword);
   }
 
   visitUnaryExpr(expr: Unary): void {

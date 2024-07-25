@@ -6,7 +6,8 @@ A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ prog
 ## Grammar
 
 `program`      → `declaration`* `EOF` ;<br />
-`declaration`  → `fnDecl` | `varDecl` | `statement` ;<br />
+`declaration`  → `classDecl` \| `fnDecl` | `varDecl` | `statement` ;<br />
+`classDecl`    → "class" `IDENTIFIER` "{" function* "}" ;
 `fnDecl`       → "fun" `function` ;<br />
 `function`     → `IDENTIFIER` "(" `parameters?` ")" `block` ;<br />
 `parameters`   → `IDENTIFIER` ( "," `IDENTIFIER` )* ;<br />
@@ -21,7 +22,7 @@ A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ prog
 `printStmt`    → "print" `expression` ";" ;<br />
 `returnStmt`   → "return" `expression`? ";" ;<br />
 `expression`   → `assignment` ;<br />
-`assignment`   → `IDENTIFIER` "=" `assignment` | `logic_or` ;<br />
+`assignment`   → ( `call` ".")? `IDENTIFIER` "=" `assignment` | `logic_or` ;<br />
 `logic_or`     → `logic_and` ( "or" `logic_and` )* ;<br />
 `logic_and`    → `equality` ( "and" `equality` )* ;<br />
 `equality`     → `comparison` ( ( "!=" | "==" ) `comparison` )* ;<br />
@@ -29,7 +30,7 @@ A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ prog
 `term`         → `factor` ( ( "-" | "+" ) `factor` )* ;<br />
 `factor`       → `unary` ( ( "/" | "\*" ) `unary` )* ;<br />
 `unary`        → ( "!" | "-" ) `unary` | `call` ;<br />
-`call`         → `primary` ( "(" `arguments`? ")" )* ;<br />
+`call`         → `primary` ( "(" `arguments`? ")" | "." `IDENTIFIER` )* ;<br />
 `arguments`    → `expression` ( "," `expression` )* ;<br />
 `primary`      → `NUMBER` | `STRING` | "true" | "false" | "nil" | "(" `expression` ")" | `IDENTIFIER` ;<br />
 

@@ -1,0 +1,31 @@
+class Breakfast {
+    init() {
+        this.something = "attempting something";
+        return;
+    }
+
+    cook() {
+        print "Eggs-a-fryin'!";
+    }
+
+    serve(who) {
+        print "Enjoy your breakfast, " + who + ".";
+    }
+
+    print_something() {
+        print this.something;
+    }
+}
+
+print Breakfast;
+
+var b = Breakfast();
+print b;
+
+// b.something = "hello";
+print b.something;
+
+b.cook();
+b.serve("Isaac");
+
+b.print_something();

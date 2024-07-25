@@ -8,6 +8,7 @@ export interface Stmt {
 }
 export interface Visitor<T> {
   visitBlockStmt(stmt: Block): T;
+  visitClassStmt(stmt: Class): T;
   visitBreakStmt(stmt: Break): T;
   visitExpressionStmt(stmt: Expression): T;
   visitFuncStmt(stmt: Func): T;
@@ -34,11 +35,29 @@ export class Block implements Stmt {
   }
 }
 
-export class Break implements Stmt {
-  token: Token;
+export class Class implements Stmt {
+  name: Token;
+  methods: Func[];
 
-  constructor(token: Token) {
-    this.token = token;
+  constructor(name: Token, methods: Func[]) {
+    this.name = name;
+    this.methods = methods;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitClassStmt(this);
+  }
+
+  toString(): string {
+    return `Class { name: ${this.name} methods: ${this.methods} }`;
+  }
+}
+
+export class Break implements Stmt {
+  keyword: Token;
+
+  constructor(keyword: Token) {
+    this.keyword = keyword;
   }
 
   accept<T>(visitor: Visitor<T>): T {
@@ -46,7 +65,7 @@ export class Break implements Stmt {
   }
 
   toString(): string {
-    return `Break { token: ${this.token} }`;
+    return `Break { keyword: ${this.keyword} }`;
   }
 }
 
