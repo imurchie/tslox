@@ -1,6 +1,6 @@
 import { TokenType } from "./token_type";
 
-export default new Map([
+export default new Map<string, string>([
   ["and", TokenType.AND],
   ["break", TokenType.BREAK],
   ["class", TokenType.CLASS],

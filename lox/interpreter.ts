@@ -12,6 +12,7 @@ import {
   Get,
   Set,
   This,
+  Super,
 } from "./expr";
 import {
   Block,
@@ -34,6 +35,8 @@ import { LoxCallable, LoxClass, LoxFunction, LoxInstance, LoxReturnValue } from 
 import { ClockBuiltin } from "./builtins";
 import { Interpreter } from "./interfaces";
 import { CLASS_INIT_METHOD } from "./constants";
+import { env } from "node:process";
+import keywords from "./keywords";
 
 export class RuntimeError extends Error {
   private _token: Token;
@@ -118,6 +121,11 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
 
     this.environment.define(stmt.name, new Object(null));
 
+    if (superclass) {
+      this.environment = new Environment(this.environment);
+      this.environment.define(TokenType.SUPER, superclass);
+    }
+
     let methods: Map<string, LoxFunction> = new Map();
     for (const method of stmt.methods) {
       const func = new LoxFunction(method, this.environment, method.name.lexeme === CLASS_INIT_METHOD);
@@ -125,6 +133,13 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
     }
 
     const klass = new LoxClass(stmt.name.lexeme, superclass, methods);
+
+    // pop the superclass's environment before assigning the class
+    // as the class already has a closure over this
+    if (stmt.superclass && this.environment.enclosing) {
+      this.environment = this.environment.enclosing;
+    }
+
     this.environment.assign(stmt.name, klass);
 
     return new LoxReturnValue(undefined);
@@ -344,6 +359,30 @@ export class LoxInterpreter implements Interpreter, StmtVisitor<object>, ExprVis
     const value = this.evaluate(expr.value);
     object.set(expr.name, value);
     return value;
+  }
+
+  visitSuperExpr(expr: Super): object {
+    const distance = this.locals.get(expr);
+    if (distance === undefined) {
+      throw new RuntimeError(expr.keyword, "Unable to find superclass");
+    }
+    const superclass = this.environment.getAt(distance, TokenType.SUPER);
+    if (!(superclass instanceof LoxClass)) {
+      throw new RuntimeError(expr.keyword, "Superclass is not a class");
+    }
+
+    const thisObj = this.environment.getAt(distance - 1, TokenType.THIS);
+    if (!(thisObj instanceof LoxInstance)) {
+      throw new RuntimeError(expr.keyword, "'this' does not refer to instance");
+    }
+
+    let method = superclass.findMethod(expr.method.lexeme);
+    method = method?.bind(thisObj);
+    if (!(method instanceof LoxFunction)) {
+      throw new RuntimeError(expr.method, `Method '${expr.method}' not found`);
+    }
+
+    return method;
   }
 
   evaluate(expr: Expr): object {

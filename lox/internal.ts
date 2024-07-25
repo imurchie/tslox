@@ -119,7 +119,7 @@ export class LoxInstance {
 
 export class LoxClass extends LoxCallable {
   name: string;
-  superclass: LoxClass  | null;
+  superclass: LoxClass | null;
   methods: Map<string, LoxFunction>;
 
   constructor(name: string, superclass: LoxClass | null, methods: Map<string, LoxFunction>) {

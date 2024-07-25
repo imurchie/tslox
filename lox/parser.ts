@@ -1,6 +1,6 @@
 import { Token } from "./token";
 import { TokenType } from "./token_type";
-import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Set, This, Unary, Variable } from "./expr";
+import { Assign, Binary, Call, Expr, Get, Grouping, Literal, Logical, Set, Super, This, Unary, Variable } from "./expr";
 import { Block, Break, Class, Expression, Func, If, Print, Return, Stmt, Var, While } from "./stmt";
 import { report } from "./errors";
 import { MAX_ARITY } from "./constants";
@@ -399,6 +399,13 @@ export default class Parser {
 
     if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new Literal(this.previous().literal);
+    }
+
+    if (this.match(TokenType.SUPER)) {
+      const keyword = this.previous();
+      this.consume(TokenType.DOT, "Expect '.' after 'super'");
+      const method = this.consume(TokenType.IDENTIFIER, "Expect superclass method name");
+      return new Super(keyword, method);
     }
 
     if (this.match(TokenType.THIS)) {

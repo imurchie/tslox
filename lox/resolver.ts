@@ -9,6 +9,7 @@ import {
   Literal,
   Logical,
   Set,
+  Super,
   This,
   Unary,
   Variable,
@@ -66,6 +67,7 @@ class ScopeStack {
 const ClassType = {
   NONE: 0,
   CLASS: 1,
+  SUPERCLASS: 2,
 };
 
 const FunctionType = {
@@ -183,7 +185,13 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
       if (stmt.name.lexeme == stmt.superclass.name.lexeme) {
         this.reportError(stmt.superclass.name, "A class cannot inherit from itself");
       }
+      this.currentClass = ClassType.SUPERCLASS;
       this.resolve(stmt.superclass);
+
+      // "super" depends on the place in which it is declared, unlike
+      // "this", and so needs a closure at this point
+      this.beginScope();
+      this.scopes.current?.set(TokenType.SUPER, true);
     }
 
     // set up for `this` being in scope in methods
@@ -198,8 +206,12 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
       this.resolveFunction(method, type);
     }
 
-    this.currentClass = enclosingClass;
+    if (stmt.superclass) {
+      this.endScope();
+    }
+
     this.endScope();
+    this.currentClass = enclosingClass;
   }
 
   visitExpressionStmt(stmt: Expression): void {
@@ -236,6 +248,16 @@ export class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     if (stmt.value != null) {
       this.resolve(stmt.value);
     }
+  }
+
+  visitSuperExpr(expr: Super): void {
+    if (this.currentClass == ClassType.NONE) {
+      this.reportError(expr.keyword, "Cannot use 'super' outside of a class");
+    } else if (this.currentClass != ClassType.SUPERCLASS) {
+      this.reportError(expr.keyword, "Cannot use 'super' in a class with no superclass");
+    }
+
+    this.resolveLocal(expr, expr.keyword);
   }
 
   visitWhileStmt(stmt: While): void {

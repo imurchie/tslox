@@ -39,6 +39,10 @@ const RULES = {
       ["Token", "name"],
       ["Expr", "value"],
     ],
+    Super: [
+      ["Token", "keyword"],
+      ["Token", "method"],
+    ],
     This: [["Token", "keyword"]],
     Unary: [
       ["Token", "operator"],
