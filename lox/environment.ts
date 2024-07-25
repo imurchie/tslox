@@ -3,7 +3,7 @@ import { Token } from "./token";
 
 export class Environment {
   private values: { [name: string]: object } = {};
-  private enclosing: Environment | null = null;
+  enclosing: Environment | null = null;
 
   constructor(enclosing: Environment | null = null) {
     this.enclosing = enclosing;

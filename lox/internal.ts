@@ -119,18 +119,27 @@ export class LoxInstance {
 
 export class LoxClass extends LoxCallable {
   name: string;
+  superclass: LoxClass | null;
   methods: Map<string, LoxFunction>;
 
-  constructor(name: string, methods: Map<string, LoxFunction>) {
+  constructor(name: string, superclass: LoxClass | null, methods: Map<string, LoxFunction>) {
     super();
     this.name = name;
+    this.superclass = superclass;
     this.methods = methods;
   }
 
   findMethod(name: string): LoxFunction | undefined {
     const method = this.methods.get(name);
+    if (method) {
+      return method;
+    }
 
-    return method;
+    if (this.superclass) {
+      return this.superclass.findMethod(name);
+    }
+
+    return undefined;
   }
 
   call(interpreter: Interpreter, args: object[]): LoxReturnValue {

@@ -7,7 +7,7 @@ A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ prog
 
 `program`      → `declaration`* `EOF` ;<br />
 `declaration`  → `classDecl` \| `fnDecl` | `varDecl` | `statement` ;<br />
-`classDecl`    → "class" `IDENTIFIER` "{" function* "}" ;
+`classDecl`    → "class" `IDENTIFIER` ( "<" `IDENTIFIER` )? "{" function* "}" ;
 `fnDecl`       → "fun" `function` ;<br />
 `function`     → `IDENTIFIER` "(" `parameters?` ")" `block` ;<br />
 `parameters`   → `IDENTIFIER` ( "," `IDENTIFIER` )* ;<br />
@@ -32,7 +32,7 @@ A [Typescript](https://www.typescriptlang.org/) implementation of the _Lox_ prog
 `unary`        → ( "!" | "-" ) `unary` | `call` ;<br />
 `call`         → `primary` ( "(" `arguments`? ")" | "." `IDENTIFIER` )* ;<br />
 `arguments`    → `expression` ( "," `expression` )* ;<br />
-`primary`      → `NUMBER` | `STRING` | "true" | "false" | "nil" | "(" `expression` ")" | `IDENTIFIER` ;<br />
+`primary`      → `NUMBER` | `STRING` | "true" | "false" | "nil" | "(" `expression` ")" | `IDENTIFIER` | "super" "." `IDENTIFIER` ;<br />
 
 
 ### AST generation

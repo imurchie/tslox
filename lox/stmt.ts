@@ -1,7 +1,7 @@
 /* This is a generated file. Do not manually edit! */
 
 import { Token } from "../lox/token"; // eslint-disable-line @typescript-eslint/no-unused-vars
-import { Expr } from "../lox/expr";
+import { Expr, Variable } from "../lox/expr";
 
 export interface Stmt {
   accept<T>(visitor: Visitor<T>): T;
@@ -37,10 +37,12 @@ export class Block implements Stmt {
 
 export class Class implements Stmt {
   name: Token;
+  superclass: Variable | null;
   methods: Func[];
 
-  constructor(name: Token, methods: Func[]) {
+  constructor(name: Token, superclass: Variable | null, methods: Func[]) {
     this.name = name;
+    this.superclass = superclass;
     this.methods = methods;
   }
 
@@ -49,7 +51,7 @@ export class Class implements Stmt {
   }
 
   toString(): string {
-    return `Class { name: ${this.name} methods: ${this.methods} }`;
+    return `Class { name: ${this.name} superclass: ${this.superclass} methods: ${this.methods} }`;
   }
 }
 

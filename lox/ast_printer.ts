@@ -8,6 +8,7 @@ import {
   Literal,
   Logical,
   Set,
+  Super,
   This,
   Unary,
   Variable,
@@ -60,6 +61,10 @@ export class AstPrinter implements Visitor<string> {
   }
 
   visitThisExpr(expr: This): string {
+    return expr.toString();
+  }
+
+  visitSuperExpr(expr: Super): string {
     return expr.toString();
   }
 
